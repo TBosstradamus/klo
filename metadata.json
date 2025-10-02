@@ -1,0 +1,5 @@
+{
+  "name": "LSPD Homepage",
+  "description": "A drag-and-drop dispatch board for managing LSPD officers and assigning them to vehicles. Features officer management, search, and a visual vehicle layout.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LSPD Dispatch Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1"
+  }
+}
+</script>
+<style>
+  :root {
+    --bg-primary: #111827; /* gray-900 */
+    --bg-secondary: #1f2937; /* gray-800 */
+    --surface: #374151; /* gray-700 */
+    --border: #4b5563; /* gray-600 */
+    --text-primary: #f9fafb; /* gray-50 */
+    --text-secondary: #d1d5db; /* gray-300 */
+    --text-tertiary: #9ca3af; /* gray-400 */
+    --accent-blue: #3b82f6; /* blue-500 */
+    --accent-blue-hover: #2563eb; /* blue-600 */
+    --accent-green: #22c55e; /* green-500 */
+    --accent-red: #ef4444; /* red-500 */
+    --accent-yellow: #eab308; /* yellow-500 */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    font-family: var(--font-sans);
+    color: var(--text-secondary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Redesigned scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--surface);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--border);
+  }
+
+  @keyframes pulse-red-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px 2px rgba(248, 113, 113, 0.7);
+    }
+    50% {
+      box-shadow: 0 0 45px 12px rgba(248, 113, 113, 0.9);
+    }
+  }
+  .animate-pulse-red-glow {
+    animation: pulse-red-glow 1.5s infinite;
+  }
+
+  @keyframes pulse-white-glow {
+    0%, 100% {
+      text-shadow: 
+        /* Subtle dark outline for sharpness */
+        -1px -1px 0 #333,  
+         1px -1px 0 #333,
+        -1px  1px 0 #333,
+         1px  1px 0 #333,
+        /* Base white glow */
+        0 0 8px #fff;
+    }
+    50% {
+      text-shadow: 
+        /* Subtle dark outline for sharpness */
+        -1px -1px 0 #333,  
+         1px -1px 0 #333,
+        -1px  1px 0 #333,
+         1px  1px 0 #333,
+        /* Pulsed, brighter white glow */
+        0 0 16px #fff,
+        0 0 24px #fff;
+    }
+  }
+  .animate-pulse-white-glow {
+    animation: pulse-white-glow 1.5s infinite;
+  }
+  
+  /* Toggle Switch styles */
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+  }
+
+  .switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--surface);
+    transition: .4s;
+    border-radius: 22px;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+
+  input:checked + .slider {
+    background-color: var(--accent-blue);
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(18px);
+  }
+  
+  @keyframes fade-in-out {
+    0%, 100% { opacity: 0; }
+    10%, 90% { opacity: 1; }
+  }
+  .animate-fade-in-out {
+    animation: fade-in-out 10s ease-in-out forwards;
+  }
+</style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-gray-900">
+    <div id="root"></div>
+    <div id="portal-root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

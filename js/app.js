@@ -823,6 +823,32 @@ function route() {
 
 // --- MEIN DIENST (Dashboard) ---
 function renderMeinDienst() {
+  // Uprank/Derank-Protokoll anzeigen
+  if (document.getElementById('uprank-log-btn')) {
+    document.getElementById('uprank-log-btn').onclick = function() {
+      renderUprankLog();
+    };
+  }
+// Uprank/Derank-Protokollseite
+function renderUprankLog() {
+  fetch('api/itlogs.php')
+    .then(res => res.json())
+    .then(logs => {
+      // Nur Beförderungs-/Degradierungs-Logs anzeigen
+      logs = logs.filter(l => l.event_type === 'officer_role_updated');
+      let html = `<div class="container my-4">
+        <h2 class="mb-4 text-primary">Uprank & Derank Protokoll</h2>
+        <button class="btn btn-secondary mb-3" onclick="renderMeinDienst()">Zurück</button>
+        <table class="table table-dark table-striped">
+          <thead><tr><th>Datum & Uhrzeit</th><th>Officer</th><th>Beschreibung</th></tr></thead>
+          <tbody>
+            ${logs.map(log => `<tr><td>${new Date(log.created_at).toLocaleString('de-DE')}</td><td>${log.officer_id}</td><td>${log.description}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+      document.getElementById('main-content').innerHTML = html;
+    });
+}
   if (!currentUser) {
     document.getElementById('main-content').innerHTML = '<div class="alert alert-warning mt-4">Bitte einloggen, um den Dienstbereich zu sehen.</div>';
     return;
@@ -873,6 +899,9 @@ function renderMeinDienst() {
               <h5 class="card-title">Karriere</h5>
               <p class="card-text">Bereit für den nächsten Schritt?</p>
               <button class="btn btn-info mt-2" id="uprank-btn">Uprank anfragen</button>
+              ${(currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung')))
+                ? '<button class="btn btn-outline-light btn-sm mt-2 ms-1" id="uprank-log-btn">Uprank/Derank-Protokoll</button>'
+                : ''}
             </div>
           </div>
         </div>
@@ -892,8 +921,79 @@ function renderMeinDienst() {
   };
   // Uprank-Button-Logik
   document.getElementById('uprank-btn').onclick = function() {
-    alert('Uprank-Anfrage wurde gesendet!');
+    openUprankModal();
   };
+// Uprank/Derank Modal-Logik
+function openUprankModal() {
+  // Nur Admin/Personalabteilung darf befördern/degradieren
+  let canEditRank = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
+  let html = `
+    <div class="modal fade" id="uprankModal" tabindex="-1" aria-labelledby="uprankModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="uprankModalLabel">Beförderung / Degradierung</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label for="uprank-new-rank" class="form-label">Neuer Rang</label>
+            <select class="form-select mb-2" id="uprank-new-rank">
+              <option value="">Bitte wählen...</option>
+              <option value="Police Officer I">Police Officer I</option>
+              <option value="Police Officer II">Police Officer II</option>
+              <option value="Police Officer III">Police Officer III</option>
+              <option value="Detective">Detective</option>
+              <option value="Sergeant">Sergeant</option>
+              <option value="Sr. Sergeant">Sr. Sergeant</option>
+              <option value="Lieutenant">Lieutenant</option>
+              <option value="Captain">Captain</option>
+              <option value="Commander">Commander</option>
+              <option value="Deputy Chief of Police">Deputy Chief of Police</option>
+              <option value="Assistant Chief of Police">Assistant Chief of Police</option>
+              <option value="Chief of Police">Chief of Police</option>
+            </select>
+            <div id="uprank-error" class="text-danger small" style="display:none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-primary" id="saveUprankBtn" ${canEditRank ? '' : 'disabled'}>Speichern</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  const modal = new bootstrap.Modal(document.getElementById('uprankModal'));
+  modal.show();
+  document.getElementById('saveUprankBtn').onclick = function() {
+    const new_rank = document.getElementById('uprank-new-rank').value;
+    if (!new_rank) {
+      document.getElementById('uprank-error').textContent = 'Bitte neuen Rang wählen!';
+      document.getElementById('uprank-error').style.display = 'block';
+      return;
+    }
+    fetch('api/uprank.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ officer_id: currentUser.id, old_rank: currentUser.rank, new_rank })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('uprankModal')).hide();
+        document.getElementById('uprankModal').remove();
+        alert('Rang wurde geändert!');
+        // Optional: Seite neu laden oder Userdaten aktualisieren
+        location.reload();
+      } else {
+        document.getElementById('uprank-error').textContent = data.error || 'Fehler beim Speichern.';
+        document.getElementById('uprank-error').style.display = 'block';
+      }
+    });
+  };
+  document.getElementById('uprankModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('uprankModal').remove();
+  });
+}
   // Lizenzen anzeigen
   const list = document.getElementById('licenses-list');
   let canEditLic = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
@@ -1022,9 +1122,14 @@ function openTeamModal() {
 let currentUser = null;
 
 function showPublicHome() {
-  document.getElementById('public-home').style.display = '';
-  document.getElementById('main-content').style.display = 'none';
-  document.getElementById('main-nav').innerHTML = '';
+  fetch('api/homepage.php')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('public-home').innerHTML = data.content || '';
+      document.getElementById('public-home').style.display = '';
+      document.getElementById('main-content').style.display = 'none';
+      document.getElementById('main-nav').innerHTML = '';
+    });
 }
 
 function showInternalApp() {
@@ -1096,6 +1201,129 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Admin-Seite rendern
 function renderAdminPage() {
+  // Supervisory-Warnung für Nicht-Admins
+  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
+    const main = document.getElementById('main-content');
+    const warn = document.createElement('div');
+    warn.className = 'alert alert-warning d-flex align-items-center my-3';
+    warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16"><path d="M7.938 2.016a.13.13 0 0 1 .125 0l6.857 11.856c.06.104-.015.228-.125.228H1.205a.145.145 0 0 1-.125-.228L7.938 2.016zm.082-1.016a1.13 1.13 0 0 0-1.938 0L.082 12.856A1.145 1.145 0 0 0 1.205 14h13.59a1.145 1.145 0 0 0 1.123-1.144c0-.2-.053-.395-.153-.572L8.02 1zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>' +
+      '<div><strong>Hinweis:</strong> Sie haben Zugriff auf diese Seite. Änderungen sind nur nach Rücksprache mit der zuständigen Leitung erlaubt.</div>';
+    main.prepend(warn);
+  }
+  // Supervisory-Warnung für Nicht-HR/Admin
+  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || (!currentUser.departmentRoles.includes('Personalabteilung') && !currentUser.departmentRoles.includes('Admin'))) {
+    const main = document.getElementById('main-content');
+    const warn = document.createElement('div');
+    warn.className = 'alert alert-warning d-flex align-items-center my-3';
+    warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16"><path d="M7.938 2.016a.13.13 0 0 1 .125 0l6.857 11.856c.06.104-.015.228-.125.228H1.205a.145.145 0 0 1-.125-.228L7.938 2.016zm.082-1.016a1.13 1.13 0 0 0-1.938 0L.082 12.856A1.145 1.145 0 0 0 1.205 14h13.59a1.145 1.145 0 0 0 1.123-1.144c0-.2-.053-.395-.153-.572L8.02 1zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>' +
+      '<div><strong>Hinweis:</strong> Sie haben Zugriff auf diese Seite. Änderungen sind nur nach Rücksprache mit der Personalabteilung erlaubt.</div>';
+    main.prepend(warn);
+  }
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Einstellungen</h5>
+              <p class="card-text">Systemeinstellungen und Benachrichtigungen verwalten.</p>
+              <button class="btn btn-primary mt-2" id="open-settings-btn">Öffnen</button>
+            </div>
+          </div>
+        </div>
+// Einstellungen-Modal (Passwort ändern, Benachrichtigungen)
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'open-settings-btn') {
+    openSettingsModal();
+  }
+});
+
+function openSettingsModal() {
+  let html = '';
+  html += '<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">';
+  html += '  <div class="modal-dialog">';
+  html += '    <div class="modal-content">';
+  html += '      <div class="modal-header">';
+  html += '        <h5 class="modal-title" id="settingsModalLabel">Einstellungen</h5>';
+  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+  html += '      </div>';
+  html += '      <div class="modal-body">';
+  html += '        <label class="form-label">Eigenes Passwort ändern</label>';
+  html += '        <input type="password" class="form-control mb-2" id="settings-old-password" placeholder="Altes Passwort">';
+  html += '        <input type="password" class="form-control mb-2" id="settings-new-password" placeholder="Neues Passwort">';
+  html += '        <hr>';
+  html += '        <label class="form-label">Benachrichtigungen</label>';
+  html += '        <div class="form-check">';
+  html += '          <input class="form-check-input" type="checkbox" id="settings-email-notify">';
+  html += '          <label class="form-check-label" for="settings-email-notify">E-Mail-Benachrichtigungen aktivieren</label>';
+  html += '        </div>';
+  html += '      </div>';
+  html += '      <div class="modal-footer">';
+  html += '        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>';
+  html += '        <button type="button" class="btn btn-primary" id="saveSettingsBtn">Speichern</button>';
+  html += '      </div>';
+  html += '    </div>';
+  html += '  </div>';
+  html += '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  // Vorbefüllen (Benachrichtigungen)
+  fetch('api/settings.php')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('settings-email-notify').checked = !!data.email_notify;
+    });
+  const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+  modal.show();
+  document.getElementById('saveSettingsBtn').onclick = function() {
+    const oldpw = document.getElementById('settings-old-password').value;
+    const newpw = document.getElementById('settings-new-password').value;
+    const email_notify = document.getElementById('settings-email-notify').checked;
+    // Passwort ändern
+    if (oldpw && newpw) {
+      fetch('api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ oldpw, newpw, email_notify })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Einstellungen gespeichert!');
+          bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+          document.getElementById('settingsModal').remove();
+        } else {
+          alert(data.error || 'Fehler beim Speichern!');
+        }
+      });
+    } else {
+      // Nur Benachrichtigungen speichern
+      fetch('api/settings.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email_notify })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Einstellungen gespeichert!');
+          bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+          document.getElementById('settingsModal').remove();
+        } else {
+          alert(data.error || 'Fehler beim Speichern!');
+        }
+      });
+    }
+  };
+  document.getElementById('settingsModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('settingsModal').remove();
+  });
+}
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Popout-Editor</h5>
+              <p class="card-text">Popout-Inhalte für die Startseite verwalten.</p>
+              <button class="btn btn-primary mt-2" id="edit-popout-btn">Öffnen</button>
+            </div>
+          </div>
+        </div>
   if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
     document.getElementById('main-content').innerHTML = '<div class="alert alert-danger mt-4">Kein Zugriff: Nur für Admins!</div>';
     return;
@@ -1118,10 +1346,160 @@ function renderAdminPage() {
             <div class="card-body d-flex flex-column justify-content-between">
               <h5 class="card-title">Homepage bearbeiten</h5>
               <p class="card-text">Startseite und öffentliche Inhalte verwalten.</p>
-              <button class="btn btn-primary mt-2" onclick="alert('Feature folgt!')">Öffnen</button>
+              <button class="btn btn-primary mt-2" id="edit-homepage-btn">Öffnen</button>
             </div>
           </div>
         </div>
+// Homepage-Editor-Modal (HTML5/Bootstrap, Admin only)
+function openHomepageEditorModal() {
+  let html = '';
+  html += '<div class="modal fade" id="homepageEditorModal" tabindex="-1" aria-labelledby="homepageEditorModalLabel" aria-hidden="true">';
+  html += '  <div class="modal-dialog modal-lg">';
+  html += '    <div class="modal-content">';
+  html += '      <div class="modal-header">';
+  html += '        <h5 class="modal-title" id="homepageEditorModalLabel">Homepage bearbeiten</h5>';
+  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+  html += '      </div>';
+  html += '      <div class="modal-body">';
+  html += '        <textarea class="form-control mb-2" id="homepage-content" rows="10" placeholder="HTML-Inhalt der Startseite"></textarea>';
+  html += '      </div>';
+  html += '      <div class="modal-footer">';
+  html += '        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>';
+  html += '        <button type="button" class="btn btn-primary" id="saveHomepageBtn">Speichern</button>';
+  html += '      </div>';
+  html += '    </div>';
+  html += '  </div>';
+  html += '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  // Vorbefüllen mit aktuellem Inhalt
+  fetch('api/homepage.php')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('homepage-content').value = data.content || '';
+    });
+  const modal = new bootstrap.Modal(document.getElementById('homepageEditorModal'));
+  modal.show();
+  document.getElementById('saveHomepageBtn').onclick = function() {
+    const content = document.getElementById('homepage-content').value;
+    fetch('api/homepage.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('homepageEditorModal')).hide();
+        document.getElementById('homepageEditorModal').remove();
+        alert('Homepage gespeichert!');
+        location.reload();
+      } else {
+        alert('Fehler beim Speichern!');
+      }
+    });
+  };
+  document.getElementById('homepageEditorModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('homepageEditorModal').remove();
+  });
+}
+
+// Popout-Editor-Modal (HTML5/Bootstrap, Admin only)
+function openPopoutEditorModal() {
+  let html = '';
+  html += '<div class="modal fade" id="popoutEditorModal" tabindex="-1" aria-labelledby="popoutEditorModalLabel" aria-hidden="true">';
+  html += '  <div class="modal-dialog modal-lg">';
+  html += '    <div class="modal-content">';
+  html += '      <div class="modal-header">';
+  html += '        <h5 class="modal-title" id="popoutEditorModalLabel">Popout bearbeiten</h5>';
+  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+  html += '      </div>';
+  html += '      <div class="modal-body">';
+  html += '        <textarea class="form-control mb-2" id="popout-content" rows="10" placeholder="HTML-Inhalt für Popout"></textarea>';
+  html += '      </div>';
+  html += '      <div class="modal-footer">';
+  html += '        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>';
+  html += '        <button type="button" class="btn btn-primary" id="savePopoutBtn">Speichern</button>';
+  html += '      </div>';
+  html += '    </div>';
+  html += '  </div>';
+  html += '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  fetch('api/popout.php')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('popout-content').value = data.content || '';
+    });
+  const modal = new bootstrap.Modal(document.getElementById('popoutEditorModal'));
+  modal.show();
+  document.getElementById('savePopoutBtn').onclick = function() {
+    const content = document.getElementById('popout-content').value;
+    fetch('api/popout.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        bootstrap.Modal.getInstance(document.getElementById('popoutEditorModal')).hide();
+        document.getElementById('popoutEditorModal').remove();
+        alert('Popout gespeichert!');
+      } else {
+        alert('Fehler beim Speichern!');
+      }
+    });
+  };
+  document.getElementById('popoutEditorModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('popoutEditorModal').remove();
+  });
+}
+
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'edit-popout-btn') {
+    openPopoutEditorModal();
+  }
+});
+  // Popout-Button auf Startseite anzeigen
+  fetch('api/popout.php')
+    .then(res => res.json())
+    .then(data => {
+      if (data.content) {
+        let btn = document.createElement('button');
+        btn.className = 'btn btn-outline-info btn-sm my-3';
+        btn.textContent = 'Popout anzeigen';
+        btn.onclick = function() {
+          openPopoutViewerModal(data.content);
+        };
+        document.getElementById('public-home').appendChild(btn);
+      }
+    });
+// Popout-Viewer-Modal (nur Anzeige)
+function openPopoutViewerModal(content) {
+  let html = '';
+  html += '<div class="modal fade" id="popoutViewerModal" tabindex="-1" aria-labelledby="popoutViewerModalLabel" aria-hidden="true">';
+  html += '  <div class="modal-dialog modal-lg">';
+  html += '    <div class="modal-content">';
+  html += '      <div class="modal-header">';
+  html += '        <h5 class="modal-title" id="popoutViewerModalLabel">Popout</h5>';
+  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+  html += '      </div>';
+  html += '      <div class="modal-body">';
+  html +=           content;
+  html += '      </div>';
+  html += '    </div>';
+  html += '  </div>';
+  html += '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  const modal = new bootstrap.Modal(document.getElementById('popoutViewerModal'));
+  modal.show();
+  document.getElementById('popoutViewerModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('popoutViewerModal').remove();
+  });
+}
+  if (e.target && e.target.id === 'edit-homepage-btn') {
+    openHomepageEditorModal();
+  }
+});
         <div class="col-md-6 col-lg-4">
           <div class="card bg-dark text-light h-100">
             <div class="card-body d-flex flex-column justify-content-between">

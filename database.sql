@@ -50,4 +50,11 @@ CREATE TABLE documents (
   created_at DATETIME NOT NULL
 );
 
--- Weitere Tabellen nach Bedarf (ITLogs, OfficerChecklist, etc.)
+CREATE TABLE itlogs (
+  id VARCHAR(36) PRIMARY KEY,
+  event_type VARCHAR(64) NOT NULL,
+  officer_id VARCHAR(36) NOT NULL,
+  description TEXT,
+  created_at DATETIME NOT NULL,
+  FOREIGN KEY (officer_id) REFERENCES officers(id)
+);

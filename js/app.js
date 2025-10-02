@@ -1347,15 +1347,7 @@ function openOfficerDetailModal(id) {
       });
     });
 }
-        <div class="col-md-6 col-lg-4">
-          <div class="card bg-dark text-light h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">HR-Dokumente</h5>
-              <p class="card-text">Personalabteilungs-Dokumente verwalten.</p>
-              <button class="btn btn-primary mt-2" id="open-hrdocs-btn">Öffnen</button>
-            </div>
-          </div>
-        </div>
+// ...existing code...
 // HR-Dokumente-Modal (Upload, Anzeige, Bearbeitung, Löschung)
 document.addEventListener('click', function(e) {
   if (e.target && e.target.id === 'open-hrdocs-btn') {
@@ -1573,15 +1565,7 @@ function openSettingsModal() {
     document.getElementById('settingsModal').remove();
   });
 }
-        <div class="col-md-6 col-lg-4">
-          <div class="card bg-dark text-light h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">Popout-Editor</h5>
-              <p class="card-text">Popout-Inhalte für die Startseite verwalten.</p>
-              <button class="btn btn-primary mt-2" id="edit-popout-btn">Öffnen</button>
-            </div>
-          </div>
-        </div>
+// ...existing code...
   if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
     document.getElementById('main-content').innerHTML = '<div class="alert alert-danger mt-4">Kein Zugriff: Nur für Admins!</div>';
     return;

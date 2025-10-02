@@ -757,9 +757,9 @@ function showInternalApp() {
     e.preventDefault();
     handleLogout();
   };
-}
-
-function handleLogout() {
+      await fetch('api/logout.php', { method: 'POST', credentials: 'include' });
+      currentUser = null;
+      showPublicHome();
   currentUser = null;
   sessionStorage.removeItem('loggedInUser');
   showPublicHome();

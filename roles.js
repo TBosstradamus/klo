@@ -11,7 +11,7 @@ const DEPARTMENT_ROLES = [
 
 // Öffnet das Rollen-Modal für einen Officer
 function openAssignRoleModal(officerId) {
-  fetch('http://localhost:3001/api/officers')
+  fetch('api/db.php?module=officers&action=list')
     .then(res => res.json())
     .then(officers => {
       const officer = officers.find(o => o.id === officerId);
@@ -32,8 +32,8 @@ function openAssignRoleModal(officerId) {
 function saveAssignedRoles() {
   const officerId = document.getElementById('assignrole-officer-id').value;
   const roles = DEPARTMENT_ROLES.filter(role => document.getElementById('assignrole-role-' + role).checked);
-  fetch(`http://localhost:3001/api/officers/${officerId}/roles`, {
-    method: 'PUT',
+  fetch(`api/db.php?module=officers&action=roles&id=${officerId}`, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ roles })
   }).then(() => {

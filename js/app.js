@@ -1201,6 +1201,210 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Admin-Seite rendern
 function renderAdminPage() {
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Team-Ansicht</h5>
+              <p class="card-text">Alle Officers und Rollen im Überblick.</p>
+              <button class="btn btn-primary mt-2" id="open-team-btn">Öffnen</button>
+            </div>
+          </div>
+        </div>
+// Team-Ansicht-Modal (Anzeige aller Officers, Suche, Details, Rechte)
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'open-team-btn') {
+    openTeamModal();
+  }
+});
+
+function openTeamModal() {
+  let html = '';
+  html += '<div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">';
+  html += '  <div class="modal-dialog modal-xl">';
+  html += '    <div class="modal-content">';
+  html += '      <div class="modal-header">';
+  html += '        <h5 class="modal-title" id="teamModalLabel">Unser Team</h5>';
+  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+  html += '      </div>';
+  html += '      <div class="modal-body">';
+  html += '        <input type="text" class="form-control mb-3" id="team-search" placeholder="Officer suchen...">';
+  html += '        <div id="team-list"></div>';
+  html += '      </div>';
+  html += '    </div>';
+  html += '  </div>';
+  html += '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  loadTeamList();
+  const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+  modal.show();
+  document.getElementById('team-search').oninput = function() {
+    loadTeamList(this.value);
+  };
+  document.getElementById('teamModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('teamModal').remove();
+  });
+}
+
+function loadTeamList(search) {
+  fetch('api/officers.js')
+    .then(res => res.json())
+    .then(officers => {
+      let html = '<div class="row">';
+      officers.filter(o => {
+        if (!search) return true;
+        const s = search.toLowerCase();
+        return (o.first_name + ' ' + o.last_name + ' ' + o.rank + ' ' + (o.departmentRoles || []).join(' ')).toLowerCase().includes(s);
+      }).forEach(o => {
+        html += `<div class="col-md-4 mb-3"><div class="card bg-dark text-light h-100"><div class="card-body"><h5 class="card-title">${o.first_name} ${o.last_name}</h5><p class="card-text mb-1">Rang: ${o.rank}</p><p class="card-text mb-1">Badge: ${o.badge_number || '-'}</p><p class="card-text mb-1">Telefon: ${o.phone_number || '-'}</p><p class="card-text mb-1">Rollen: ${(o.departmentRoles || []).join(', ')}</p><button class='btn btn-outline-info btn-sm mt-2' onclick='openOfficerDetailModal("${o.id}")'>Details</button></div></div></div>`;
+      });
+      html += '</div>';
+      document.getElementById('team-list').innerHTML = html;
+    });
+}
+
+function openOfficerDetailModal(id) {
+  fetch('api/officers.js')
+    .then(res => res.json())
+    .then(officers => {
+      const o = officers.find(x => x.id === id);
+      if (!o) return;
+      let html = '';
+      html += '<div class="modal fade" id="officerDetailModal" tabindex="-1" aria-labelledby="officerDetailModalLabel" aria-hidden="true">';
+      html += '  <div class="modal-dialog">';
+      html += '    <div class="modal-content">';
+      html += '      <div class="modal-header">';
+      html += '        <h5 class="modal-title" id="officerDetailModalLabel">Officer-Details</h5>';
+      html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+      html += '      </div>';
+      html += '      <div class="modal-body">';
+      html += `        <p><strong>${o.first_name} ${o.last_name}</strong> (${o.rank})</p>`;
+      html += `        <p>Badge: ${o.badge_number || '-'}</p>`;
+      html += `        <p>Telefon: ${o.phone_number || '-'}</p>`;
+      html += `        <p>Rollen: ${(o.departmentRoles || []).join(', ')}</p>`;
+      html += '      </div>';
+      html += '    </div>';
+      html += '  </div>';
+      html += '</div>';
+      document.body.insertAdjacentHTML('beforeend', html);
+      const modal = new bootstrap.Modal(document.getElementById('officerDetailModal'));
+      modal.show();
+      document.getElementById('officerDetailModal').addEventListener('hidden.bs.modal', () => {
+        document.getElementById('officerDetailModal').remove();
+      });
+    });
+}
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">HR-Dokumente</h5>
+              <p class="card-text">Personalabteilungs-Dokumente verwalten.</p>
+              <button class="btn btn-primary mt-2" id="open-hrdocs-btn">Öffnen</button>
+            </div>
+          </div>
+        </div>
+// HR-Dokumente-Modal (Upload, Anzeige, Bearbeitung, Löschung)
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'open-hrdocs-btn') {
+    openHRDocsModal();
+  }
+});
+
+function openHRDocsModal() {
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Personalabteilung') || currentUser.departmentRoles.includes('Admin'));
+  let html = '';
+  html += '<div class="modal fade" id="hrDocsModal" tabindex="-1" aria-labelledby="hrDocsModalLabel" aria-hidden="true">';
+  html += '  <div class="modal-dialog modal-lg">';
+  html += '    <div class="modal-content">';
+  html += '      <div class="modal-header">';
+  html += '        <h5 class="modal-title" id="hrDocsModalLabel">HR-Dokumente</h5>';
+  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
+  html += '      </div>';
+  html += '      <div class="modal-body">';
+  if (canEdit) {
+    html += '<form id="hrdoc-upload-form" class="mb-3">';
+    html += '  <div class="input-group">';
+    html += '    <input type="file" class="form-control" id="hrdoc-file" required accept="application/pdf,.doc,.docx,.odt,.txt">';
+    html += '    <input type="text" class="form-control" id="hrdoc-title" placeholder="Titel" required>';
+    html += '    <button class="btn btn-success" type="submit">Hochladen</button>';
+    html += '  </div>';
+    html += '</form>';
+  }
+  html += '<ul class="list-group" id="hrdocs-list"></ul>';
+  html += '      </div>';
+  html += '    </div>';
+  html += '  </div>';
+  html += '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  loadHRDocsList(canEdit);
+  const modal = new bootstrap.Modal(document.getElementById('hrDocsModal'));
+  modal.show();
+  if (canEdit) {
+    document.getElementById('hrdoc-upload-form').onsubmit = function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('hrdoc-file');
+      const titleInput = document.getElementById('hrdoc-title');
+      const file = fileInput.files[0];
+      const title = titleInput.value;
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('title', title);
+      fetch('api/hrdocs.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          loadHRDocsList(canEdit);
+          fileInput.value = '';
+          titleInput.value = '';
+        } else {
+          alert(data.error || 'Fehler beim Upload!');
+        }
+      });
+    };
+  }
+  document.getElementById('hrDocsModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('hrDocsModal').remove();
+  });
+}
+
+function loadHRDocsList(canEdit) {
+  fetch('api/hrdocs.php')
+    .then(res => res.json())
+    .then(docs => {
+      const list = document.getElementById('hrdocs-list');
+      list.innerHTML = '';
+      if (!Array.isArray(docs) || docs.length === 0) {
+        list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine HR-Dokumente vorhanden.</li>';
+      } else {
+        docs.forEach(doc => {
+          let actions = `<a href="${doc.url}" target="_blank" class="btn btn-sm btn-outline-info ms-2">Anzeigen</a>`;
+          if (canEdit) {
+            actions += ` <button class='btn btn-sm btn-danger ms-1' onclick='deleteHRDoc("${doc.id}")'>Löschen</button>`;
+          }
+          list.innerHTML += `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">${doc.title} <span>${actions}</span></li>`;
+        });
+      }
+    });
+}
+
+function deleteHRDoc(id) {
+  if (!confirm('Wirklich löschen?')) return;
+  fetch('api/hrdocs.php', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      loadHRDocsList(true);
+    } else {
+      alert(data.error || 'Fehler beim Löschen!');
+    }
+  });
+}
   // Supervisory-Warnung für Nicht-Admins
   if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
     const main = document.getElementById('main-content');

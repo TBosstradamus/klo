@@ -895,15 +895,100 @@ function renderMeinDienst() {
     alert('Uprank-Anfrage wurde gesendet!');
   };
   // Lizenzen anzeigen
-  const licenses = (currentUser.licenses || []);
   const list = document.getElementById('licenses-list');
-  if (licenses.length === 0) {
-    list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine Lizenzen vorhanden.</li>';
-  } else {
-    list.innerHTML = licenses.map(l => `<li class="list-group-item bg-dark text-light">${l.name} <span class="badge bg-secondary ms-2">${l.issued_by || ''}</span></li>`).join('');
-  }
+  let canEditLic = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
+  // AJAX: Lizenzen vom Backend holen
+  fetch('api/licenses.php')
+    .then(res => res.json())
+    .then(licenses => {
+      list.innerHTML = '';
+      if (!Array.isArray(licenses) || licenses.length === 0) {
+        list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine Lizenzen vorhanden.</li>';
+      } else {
+        list.innerHTML = licenses.map((l, idx) => {
+          let status = '';
+          if (l.expires_at) {
+            const exp = new Date(l.expires_at);
+            status = exp > new Date() ? '<span class="badge bg-success ms-2">Gültig</span>' : '<span class="badge bg-danger ms-2">Abgelaufen</span>';
+          }
+          let btns = '';
+          if (canEditLic) {
+            btns = `<button class='btn btn-sm btn-primary ms-2' onclick='openLicenseModal(${JSON.stringify(l)})'>Bearbeiten</button> <button class='btn btn-sm btn-danger ms-1' onclick='deleteLicense(${JSON.stringify(l)})'>Löschen</button>`;
+          }
+          return `<li class="list-group-item bg-dark text-light">${l.name} <span class="badge bg-secondary ms-2">${l.issued_by || ''}</span> ${status} ${btns}</li>`;
+        }).join('');
+      }
+      if (canEditLic) {
+        const addBtn = document.createElement('button');
+        addBtn.className = 'btn btn-success btn-sm mt-2';
+        addBtn.textContent = 'Lizenz hinzufügen';
+        addBtn.onclick = () => openLicenseModal();
+        list.parentElement.appendChild(addBtn);
+      }
+    });
 }
 
+// Lizenz-Modal-Logik (AJAX)
+function openLicenseModal(license) {
+  license = license || {};
+  let html = `
+    <div class="modal fade" id="licenseModal" tabindex="-1" aria-labelledby="licenseModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="licenseModalLabel">Lizenz ${license.name ? 'bearbeiten' : 'hinzufügen'}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="text" class="form-control mb-2" id="license-name" placeholder="Name" value="${license.name || ''}">
+            <input type="text" class="form-control mb-2" id="license-issued-by" placeholder="Ausgestellt von" value="${license.issued_by || ''}">
+            <input type="date" class="form-control mb-2" id="license-expires-at" placeholder="Ablaufdatum" value="${license.expires_at ? license.expires_at.slice(0,10) : ''}">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-primary" id="saveLicenseBtn">Speichern</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  const modal = new bootstrap.Modal(document.getElementById('licenseModal'));
+  modal.show();
+  document.getElementById('saveLicenseBtn').onclick = function() {
+    const name = document.getElementById('license-name').value;
+    const issued_by = document.getElementById('license-issued-by').value;
+    const expires_at = document.getElementById('license-expires-at').value;
+    const method = license.id ? 'PUT' : 'POST';
+    const body = license.id ? { id: license.id, name, issued_by, expires_at } : { officer_id: currentUser.id, name, issued_by, expires_at };
+    fetch('api/licenses.php', {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    })
+    .then(res => res.json())
+    .then(() => {
+      bootstrap.Modal.getInstance(document.getElementById('licenseModal')).hide();
+      document.getElementById('licenseModal').remove();
+      renderMeinDienst();
+    });
+  };
+  document.getElementById('licenseModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('licenseModal').remove();
+  });
+}
+
+function deleteLicense(license) {
+  if (!confirm('Wirklich löschen?')) return;
+  fetch('api/licenses.php', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: license.id })
+  })
+  .then(res => res.json())
+  .then(() => renderMeinDienst());
+}
+
+// --- Login- und Sichtbarkeits-Logik ---
 // --- Login- und Sichtbarkeits-Logik ---
 // --- TEAM ---
 function renderTeamPage() {

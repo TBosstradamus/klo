@@ -32,7 +32,8 @@ CREATE TABLE licenses (
   id VARCHAR(36) PRIMARY KEY,
   officer_id VARCHAR(36) NOT NULL,
   name VARCHAR(64) NOT NULL,
-  status VARCHAR(32) NOT NULL,
+  issued_by VARCHAR(64),
+  expires_at DATE,
   FOREIGN KEY (officer_id) REFERENCES officers(id)
 );
 

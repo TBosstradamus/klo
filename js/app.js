@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentMail = null;
 
   async function loadMailbox() {
-    const res = await fetch('http://localhost:3001/api/mailbox');
+     const res = await fetch('api/mailbox');
     const mails = await res.json();
     renderMailboxGrid(mails);
   }
@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
       body: document.getElementById('mailbox-body').value,
       sent_at: now.toISOString().slice(0, 19).replace('T', ' ')
     };
-    await fetch('http://localhost:3001/api/mailbox', {
+    await fetch('api/mailbox', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(mail)
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function deleteMail(id) {
     if (confirm('Wirklich löschen?')) {
-      await fetch(`http://localhost:3001/api/mailbox/${id}`, { method: 'DELETE' });
+      await fetch(`api/mailbox/${id}`, { method: 'DELETE' });
       loadMailbox();
     }
   }
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Hilfsfunktion zum Befüllen von Officer-Dropdowns
 async function fillOfficerDropdown(selectId, selectedId = '') {
-  const res = await fetch('http://localhost:3001/api/officers');
+  const res = await fetch('api/officers');
   const officers = await res.json();
   const select = document.getElementById(selectId);
   select.innerHTML = '<option value="">Bitte wählen</option>' + officers.map(o =>
@@ -98,7 +98,7 @@ async function fillOfficerDropdown(selectId, selectedId = '') {
 }
 
 async function loadChecklists() {
-  const res = await fetch('http://localhost:3001/api/checklists');
+  const res = await fetch('api/checklists');
   const checklists = await res.json();
   renderChecklistGrid(checklists);
 }
@@ -155,7 +155,7 @@ function renderChecklistGrid(checklists) {
 
 // Detail-Modal für Checkliste
 async function openChecklistDetailModal(id) {
-  const res = await fetch('http://localhost:3001/api/checklists');
+  const res = await fetch('api/checklists');
   const checklists = await res.json();
   const checklist = checklists.find(c => c.id === id);
   let itemsArr = [];
@@ -190,12 +190,12 @@ async function openChecklistDetailModal(id) {
 
 // Abschluss einer Checkliste
 async function completeChecklist(id) {
-  const res = await fetch('http://localhost:3001/api/checklists');
+  const res = await fetch('api/checklists');
   const checklists = await res.json();
   const checklist = checklists.find(c => c.id === id);
   if (!checklist) return;
   checklist.is_completed = 1;
-  await fetch(`http://localhost:3001/api/checklists/${id}`, {
+  await fetch(`api/checklists/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(checklist)
@@ -242,7 +242,7 @@ function openChecklistTemplateModal() {
 
 async function openChecklistModal(id) {
   if (id) {
-    const res = await fetch('http://localhost:3001/api/checklists');
+  const res = await fetch('api/checklists');
     const checklists = await res.json();
     currentChecklist = checklists.find(c => c.id === id);
   } else {
@@ -273,13 +273,13 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
     is_completed: document.getElementById('checklist-completed').value === '1' ? 1 : 0
   };
   if (id) {
-    await fetch(`http://localhost:3001/api/checklists/${id}`, {
+  await fetch(`api/checklists/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(checklist)
     });
   } else {
-    await fetch('http://localhost:3001/api/checklists', {
+  await fetch('api/checklists', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(checklist)
@@ -291,7 +291,7 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
 
 async function deleteChecklist(id) {
   if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/checklists/${id}`, { method: 'DELETE' });
+  await fetch(`api/checklists/${id}`, { method: 'DELETE' });
     loadChecklists();
   }
 }
@@ -299,7 +299,7 @@ async function deleteChecklist(id) {
 let currentITLog = null;
 
 async function loadITLogs() {
-  const res = await fetch('http://localhost:3001/api/itlogs');
+  const res = await fetch('api/itlogs');
   const itlogs = await res.json();
   renderITLogGrid(itlogs);
 }
@@ -334,7 +334,7 @@ function renderITLogGrid(itlogs) {
 
 async function openITLogModal(id) {
   if (id) {
-    const res = await fetch('http://localhost:3001/api/itlogs');
+  const res = await fetch('api/itlogs');
     const itlogs = await res.json();
     currentITLog = itlogs.find(l => l.id === id);
   } else {
@@ -365,13 +365,13 @@ document.getElementById('itlogForm').onsubmit = async function(e) {
     created_at: new Date(document.getElementById('itlog-created-at').value).toISOString().slice(0, 19).replace('T', ' ')
   };
   if (id) {
-    await fetch(`http://localhost:3001/api/itlogs/${id}`, {
+  await fetch(`api/itlogs/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(log)
     });
   } else {
-    await fetch('http://localhost:3001/api/itlogs', {
+  await fetch('api/itlogs', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(log)
@@ -383,7 +383,7 @@ document.getElementById('itlogForm').onsubmit = async function(e) {
 
 async function deleteITLog(id) {
   if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/itlogs/${id}`, { method: 'DELETE' });
+  await fetch(`itlogs/${id}`, { method: 'DELETE' });
     loadITLogs();
   }
 }
@@ -391,7 +391,7 @@ async function deleteITLog(id) {
 let currentDocument = null;
 
 async function loadDocuments() {
-  const res = await fetch('http://localhost:3001/api/documents');
+  const res = await fetch('api/documents');
   const documents = await res.json();
   renderDocumentGrid(documents);
 }
@@ -422,7 +422,7 @@ function renderDocumentGrid(documents) {
 
 async function openDocumentModal(id) {
   if (id) {
-    const res = await fetch('http://localhost:3001/api/documents');
+  const res = await fetch('api/documents');
     const documents = await res.json();
     currentDocument = documents.find(d => d.id === id);
   } else {
@@ -450,13 +450,13 @@ document.getElementById('documentForm').onsubmit = async function(e) {
     created_at: id ? undefined : now.toISOString().slice(0, 19).replace('T', ' ')
   };
   if (id) {
-    await fetch(`http://localhost:3001/api/documents/${id}`, {
+  await fetch(`api/documents/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(doc)
     });
   } else {
-    await fetch('http://localhost:3001/api/documents', {
+  await fetch('api/documents', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(doc)
@@ -468,7 +468,7 @@ document.getElementById('documentForm').onsubmit = async function(e) {
 
 async function deleteDocument(id) {
   if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/documents/${id}`, { method: 'DELETE' });
+  await fetch(`api/documents/${id}`, { method: 'DELETE' });
     loadDocuments();
   }
 }
@@ -476,7 +476,7 @@ async function deleteDocument(id) {
 let currentModule = null;
 
 async function loadModules() {
-  const res = await fetch('http://localhost:3001/api/modules');
+  const res = await fetch('api/modules');
   const modules = await res.json();
   renderModuleGrid(modules);
 }
@@ -553,13 +553,13 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
     description: document.getElementById('module-description').value
   };
   if (id) {
-    await fetch(`http://localhost:3001/api/modules/${id}`, {
+  await fetch(`api/modules/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(module)
     });
   } else {
-    await fetch('http://localhost:3001/api/modules', {
+  await fetch('api/modules', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(module)
@@ -571,7 +571,7 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
 
 async function deleteModule(id) {
   if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/modules/${id}`, { method: 'DELETE' });
+  await fetch(`api/modules/${id}`, { method: 'DELETE' });
     loadModules();
   }
 }
@@ -636,34 +636,42 @@ function fillOfficerForm(officer) {
   document.getElementById('officer-rank').value = officer ? officer.rank : '';
 }
 
-document.getElementById('officerForm').onsubmit = async function(e) {
-  e.preventDefault();
-  const id = document.getElementById('officer-id').value;
-  const officer = {
-    id: id || crypto.randomUUID(),
-    badge_number: document.getElementById('officer-badge').value,
-    first_name: document.getElementById('officer-firstname').value,
-    last_name: document.getElementById('officer-lastname').value,
-    phone_number: document.getElementById('officer-phone').value,
-    gender: document.getElementById('officer-gender').value,
-    rank: document.getElementById('officer-rank').value
-  };
-  if (id) {
-    await fetch(`http://localhost:3001/api/officers/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(officer)
-    });
-  } else {
-    await fetch('http://localhost:3001/api/officers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(officer)
-    });
+
+document.addEventListener('DOMContentLoaded', function() {
+  // ...existing code...
+  const officerForm = document.getElementById('officerForm');
+  if (officerForm) {
+    officerForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('officer-id').value;
+      const officer = {
+        id: id || crypto.randomUUID(),
+        badge_number: document.getElementById('officer-badge').value,
+        first_name: document.getElementById('officer-firstname').value,
+        last_name: document.getElementById('officer-lastname').value,
+        phone_number: document.getElementById('officer-phone').value,
+        gender: document.getElementById('officer-gender').value,
+        rank: document.getElementById('officer-rank').value
+      };
+      if (id) {
+        await fetch(`api/officers/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(officer)
+        });
+      } else {
+        await fetch('api/officers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(officer)
+        });
+      }
+      bootstrap.Modal.getInstance(document.getElementById('officerModal')).hide();
+      loadOfficers();
+    };
   }
-  bootstrap.Modal.getInstance(document.getElementById('officerModal')).hide();
-  loadOfficers();
-};
+  // ...existing code...
+});
 
 async function deleteOfficer(id) {
   if (confirm('Wirklich löschen?')) {
@@ -677,7 +685,7 @@ async function deleteOfficer(id) {
 let currentVehicle = null;
 
 async function loadVehicles() {
-  const res = await fetch('http://localhost:3001/api/vehicles');
+  const res = await fetch('api/vehicles');
   const vehicles = await res.json();
   renderVehicleGrid(vehicles);
 }
@@ -742,13 +750,13 @@ document.getElementById('vehicleForm').onsubmit = async function(e) {
     mileage: parseInt(document.getElementById('vehicle-mileage').value, 10)
   };
   if (id) {
-    await fetch(`http://localhost:3001/api/vehicles/${id}`, {
+  await fetch(`api/vehicles/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(vehicle)
     });
   } else {
-    await fetch('http://localhost:3001/api/vehicles', {
+  await fetch('api/vehicles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(vehicle)
@@ -760,7 +768,7 @@ document.getElementById('vehicleForm').onsubmit = async function(e) {
 
 async function deleteVehicle(id) {
   if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/vehicles/${id}`, { method: 'DELETE' });
+  await fetch(`api/vehicles/${id}`, { method: 'DELETE' });
     loadVehicles();
   }
 }
@@ -770,7 +778,7 @@ async function deleteVehicle(id) {
 let currentSanction = null;
 
 async function loadSanctions() {
-  const res = await fetch('http://localhost:3001/api/sanctions');
+  const res = await fetch('api/sanctions');
   const sanctions = await res.json();
   renderSanctionsTable(sanctions);
 }
@@ -831,13 +839,13 @@ document.getElementById('sanctionForm').onsubmit = async function(e) {
     timestamp: new Date(document.getElementById('sanction-timestamp').value).toISOString()
   };
   if (id) {
-    await fetch(`http://localhost:3001/api/sanctions/${id}`, {
+  await fetch(`api/sanctions/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sanction)
     });
   } else {
-    await fetch('http://localhost:3001/api/sanctions', {
+  await fetch('api/sanctions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(sanction)
@@ -849,7 +857,7 @@ document.getElementById('sanctionForm').onsubmit = async function(e) {
 
 async function deleteSanction(id) {
   if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/sanctions/${id}`, { method: 'DELETE' });
+  await fetch(`api/sanctions/${id}`, { method: 'DELETE' });
     loadSanctions();
   }
 }
@@ -1239,21 +1247,40 @@ document.getElementById('loginNavBtn').onclick = function(e) {
   modal.show();
 };
 
-// Login-Formular-Handler (Dummy, Backend folgt)
-document.getElementById('loginForm').onsubmit = async function(e) {
-  e.preventDefault();
-  const username = document.getElementById('login-username').value;
-  const password = document.getElementById('login-password').value;
-  // TODO: API-Call ersetzen, hier Dummy-Login für Demo
-  if (username === 'admin' && password === 'admin') {
-    handleLoginSuccess({ username: 'admin', roles: ['Admin'] });
-    bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-    document.getElementById('login-error').style.display = 'none';
-  } else {
-    document.getElementById('login-error').innerText = 'Login fehlgeschlagen!';
-    document.getElementById('login-error').style.display = '';
+// Login-Formular-Handler (Backend-Login via PHP)
+
+document.addEventListener('DOMContentLoaded', function() {
+  // ...existing code...
+  const loginForm = document.getElementById('loginForm');
+  if (loginForm) {
+    loginForm.onsubmit = async function(e) {
+      e.preventDefault();
+      const username = document.getElementById('login-username').value;
+      const password = document.getElementById('login-password').value;
+      try {
+        const res = await fetch('api/login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          document.getElementById('login-error').innerText = err.error || 'Login fehlgeschlagen!';
+          document.getElementById('login-error').style.display = '';
+          return;
+        }
+        const user = await res.json();
+        handleLoginSuccess(user);
+        bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
+        document.getElementById('login-error').style.display = 'none';
+      } catch (err) {
+        document.getElementById('login-error').innerText = 'Serverfehler beim Login!';
+        document.getElementById('login-error').style.display = '';
+      }
+    };
   }
-};
+  // ...existing code...
+});
 
 // Beim Laden prüfen, ob User eingeloggt ist
 document.addEventListener('DOMContentLoaded', () => {

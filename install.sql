@@ -18,12 +18,12 @@ CREATE TABLE officers (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Admin-User (Passwort: admin)
+-- Passwort-Hash für 'admin' (generiert mit password_hash('admin', PASSWORD_DEFAULT))
 INSERT INTO officers (id, username, password_hash, rank, department_roles, first_name, last_name, badge_number, gender)
 VALUES (
   '00000000-0000-0000-0000-000000000001',
   'admin',
-  '$2y$10$wH6QnQwQnQwQnQwQnQwQnOQwQnQwQnQwQnQwQnQwQnQwQnQwQnQ',
+  '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uCw5o8y6.0i',
   'Chief of Police',
   'Admin,Personalabteilung,IT-Manager,Leitung Field Training Officer',
   'Max',

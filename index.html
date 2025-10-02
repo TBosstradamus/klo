@@ -8,7 +8,8 @@
   <link href="css/style.css" rel="stylesheet">
 </head>
 <body class="bg-dark text-light">
-<!-- Mailbox Modal -->
+  <!-- Modals und Seiteninhalt BEGINN -->
+  <!-- Mailbox Modal -->
   <div class="modal fade" id="mailboxModal" tabindex="-1" aria-labelledby="mailboxModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -44,6 +45,7 @@
       </div>
     </div>
   </div>
+
   <!-- Checklist Modal -->
   <div class="modal fade" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -60,46 +62,17 @@
               <select class="form-select" id="checklist-officer-id" required>
                 <option value="">Bitte wählen...</option>
               </select>
-                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-                  <div class="container-fluid">
-                    <a class="navbar-brand" href="#">KLO</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                      <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                      <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="main-nav">
-                        <!-- Navigation wird dynamisch befüllt -->
-                      </ul>
-                      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                          <a class="nav-link" href="#" id="loginNavBtn">Login</a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </nav>
-                <!-- Öffentliche Startseite (sichtbar, wenn nicht eingeloggt) -->
-                <section id="public-home" class="container my-5">
-                  <div class="text-center">
-                    <h1 class="display-4 mb-4">Willkommen bei KLO</h1>
-                    <p class="lead">Dies ist die öffentliche Informationsseite des KLO-Systems.<br>Hier können Sie aktuelle Informationen, Kontaktmöglichkeiten und News veröffentlichen.<br>Bearbeiten Sie diesen Bereich einfach im HTML.</p>
-                    <hr class="my-4">
-                    <div class="row justify-content-center">
-                      <div class="col-md-8">
-                        <h3>Aktuelles</h3>
-                        <ul class="list-group mb-4">
-                          <li class="list-group-item">Beispiel-News 1: Systemupdate am 10.10.2025</li>
-                          <li class="list-group-item">Beispiel-News 2: Neue Funktionen für die Verwaltung</li>
-                        </ul>
-                        <h3>Kontakt</h3>
-                        <p>Sie erreichen uns unter <a href="mailto:info@klo-system.de">info@klo-system.de</a></p>
-                      </div>
-                    </div>
-                  </div>
-                </section>
-                <main class="container my-4" id="main-content" style="display:none;">
-                  <!-- Hauptinhalt wird dynamisch befüllt -->
-                </main>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- ITLog Modal -->
   <div class="modal fade" id="itlogModal" tabindex="-1" aria-labelledby="itlogModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -138,6 +111,7 @@
       </div>
     </div>
   </div>
+
   <!-- Document Modal -->
   <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -166,6 +140,7 @@
       </div>
     </div>
   </div>
+
   <!-- Module Modal -->
   <div class="modal fade" id="moduleModal" tabindex="-1" aria-labelledby="moduleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -194,39 +169,41 @@
       </div>
     </div>
   </div>
-    <!-- Login Modal -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light">
-          <form id="loginForm" autocomplete="on">
-            <div class="modal-header">
-              <h5 class="modal-title" id="loginModalLabel">Login</h5>
-              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+
+  <!-- Login Modal -->
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-light">
+        <form id="loginForm" autocomplete="on">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Login</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="login-username" class="form-label">Benutzername</label>
+              <input type="text" class="form-control" id="login-username" name="username" required autocomplete="username">
             </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label for="login-username" class="form-label">Benutzername</label>
-                <input type="text" class="form-control" id="login-username" name="username" required autocomplete="username">
-              </div>
-              <div class="mb-3">
-                <label for="login-password" class="form-label">Passwort</label>
-                <input type="password" class="form-control" id="login-password" name="password" required autocomplete="current-password">
-              </div>
-              <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" value="1" id="login-remember">
-                <label class="form-check-label" for="login-remember">
-                  Angemeldet bleiben
-                </label>
-              </div>
-              <div id="login-error" class="text-danger small" style="display:none;"></div>
+            <div class="mb-3">
+              <label for="login-password" class="form-label">Passwort</label>
+              <input type="password" class="form-control" id="login-password" name="password" required autocomplete="current-password">
             </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-primary w-100">Anmelden</button>
+            <div class="form-check mb-3">
+              <input class="form-check-input" type="checkbox" value="1" id="login-remember">
+              <label class="form-check-label" for="login-remember">
+                Angemeldet bleiben
+              </label>
             </div>
-          </form>
-        </div>
+            <div id="login-error" class="text-danger small" style="display:none;"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary w-100">Anmelden</button>
+          </div>
+        </form>
       </div>
     </div>
+  </div>
+
   <!-- Sanction Modal -->
   <div class="modal fade" id="sanctionModal" tabindex="-1" aria-labelledby="sanctionModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -265,6 +242,7 @@
       </div>
     </div>
   </div>
+
   <!-- Vehicle Modal -->
   <div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -305,16 +283,10 @@
       </div>
     </div>
   </div>
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KLO Webanwendung</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
-</head>
-<body class="bg-dark text-light">
+
+  <!-- Hier können weitere Modals (Officer, AssignRole, Credentials, Team, etc.) ergänzt werden -->
+
+  <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">KLO</a>
@@ -322,185 +294,50 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="#meindienst">Mein Dienst</a></li>
-          <li class="nav-item"><a class="nav-link" href="#team">Unser Team</a></li>
-          <li class="nav-item"><a class="nav-link" href="#officers">Officers</a></li>
-          <li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge</a></li>
-          <li class="nav-item"><a class="nav-link" href="#sanctions">Sanktionen</a></li>
-          <li class="nav-item"><a class="nav-link" href="#modules">Module</a></li>
-          <li class="nav-item"><a class="nav-link" href="#documents">Dokumente</a></li>
-          <li class="nav-item"><a class="nav-link" href="#itlogs">IT-Logs</a></li>
-          <li class="nav-item"><a class="nav-link" href="#checklists">Checklisten</a></li>
-          <li class="nav-item"><a class="nav-link" href="#mailbox">Mailbox</a></li>
+        <ul class="navbar-nav" id="main-nav">
+          <!-- Navigation wird dynamisch befüllt -->
+        </ul>
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <button class="btn btn-outline-light" id="loginNavBtn" type="button" data-bs-toggle="modal" data-bs-target="#loginModal">Login</button>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
-  <main class="container-fluid">
-    <div class="row">
-      <div class="col-md-3">
-        <div id="officer-sidebar"></div>
-      </div>
-      <div class="col-md-9">
-        <div id="main-content"></div>
-        <!-- Lizenzverwaltung (Mein Dienst) -->
-        <section id="licenses-section" class="my-4" style="display:none;">
-          <h4 class="text-primary">Lizenzen</h4>
-          <ul class="list-group" id="licenses-list"></ul>
-        </section>
-        <!-- Team Modal -->
-        <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
-          <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="teamModalLabel">Unser Team</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-              <div class="modal-body" id="team-modal-body">
-                <!-- Team-Inhalt wird per JS befüllt -->
-              </div>
-            </div>
-          </div>
+
+  <!-- Öffentliche Startseite (sichtbar, wenn nicht eingeloggt) -->
+  <section id="public-home" class="container my-5">
+    <div class="text-center">
+      <h1 class="display-4 mb-4">Willkommen bei KLO</h1>
+      <p class="lead">Dies ist die öffentliche Informationsseite des KLO-Systems.<br>Hier können Sie aktuelle Informationen, Kontaktmöglichkeiten und News veröffentlichen.<br>Bearbeiten Sie diesen Bereich einfach im HTML.</p>
+      <hr class="my-4">
+      <div class="row justify-content-center">
+        <div class="col-md-8">
+          <h3>Aktuelles</h3>
+          <ul class="list-group mb-4">
+            <li class="list-group-item">Beispiel-News 1: Systemupdate am 10.10.2025</li>
+            <li class="list-group-item">Beispiel-News 2: Neue Funktionen für die Verwaltung</li>
+          </ul>
+          <h3>Kontakt</h3>
+          <p>Sie erreichen uns unter <a href="mailto:info@klo-system.de">info@klo-system.de</a></p>
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- Hauptinhalt (wird per JS befüllt) -->
+  <main class="container my-4" id="main-content" style="display:none;">
+    <!-- Hauptinhalt wird dynamisch befüllt -->
   </main>
+
+  <!-- Footer -->
   <footer class="footer mt-5 py-3 bg-secondary text-center text-white">
     <div class="container">&copy; 2025 KLO Webanwendung</div>
   </footer>
-
-  <!-- Officer Modal -->
-  <div class="modal fade" id="officerModal" tabindex="-1" aria-labelledby="officerModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <form id="officerForm">
-          <div class="modal-header">
-            <h5 class="modal-title" id="officerModalLabel">Officer bearbeiten</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="officer-id">
-            <div class="mb-3">
-              <label for="officer-badge" class="form-label">Badge Nummer</label>
-              <input type="text" class="form-control" id="officer-badge" required>
-            </div>
-            <div class="mb-3">
-              <label for="officer-firstname" class="form-label">Vorname</label>
-              <input type="text" class="form-control" id="officer-firstname" required>
-            </div>
-            <div class="mb-3">
-              <label for="officer-lastname" class="form-label">Nachname</label>
-              <input type="text" class="form-control" id="officer-lastname" required>
-            </div>
-            <div class="mb-3">
-              <label for="officer-phone" class="form-label">Telefonnummer</label>
-              <input type="text" class="form-control" id="officer-phone">
-            </div>
-            <div class="mb-3">
-              <label for="officer-gender" class="form-label">Geschlecht</label>
-              <select class="form-select" id="officer-gender" required>
-                <option value="male">Männlich</option>
-                <option value="female">Weiblich</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="officer-rank" class="form-label">Rang</label>
-              <input type="text" class="form-control" id="officer-rank" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-            <button type="submit" class="btn btn-primary">Speichern</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Assign Role Modal -->
-<div class="modal fade" id="assignRoleModal" tabindex="-1" aria-labelledby="assignRoleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="assignRoleForm" onsubmit="event.preventDefault(); saveAssignedRoles();">
-        <div class="modal-header">
-          <h5 class="modal-title" id="assignRoleModalLabel">Rollen zuweisen: <span id="assignrole-officer-name"></span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="assignrole-officer-id">
-          <div class="mb-3">
-            <label class="form-label">Rollen</label>
-            <div id="assignrole-roles-list">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="assignrole-role-Personalabteilung">
-                <label class="form-check-label" for="assignrole-role-Personalabteilung">Personalabteilung</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="assignrole-role-Leitung Personalabteilung">
-                <label class="form-check-label" for="assignrole-role-Leitung Personalabteilung">Leitung Personalabteilung</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="assignrole-role-IT-Manager">
-                <label class="form-check-label" for="assignrole-role-IT-Manager">IT-Manager</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="assignrole-role-Fuhrpark">
-                <label class="form-check-label" for="assignrole-role-Fuhrpark">Fuhrpark</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="assignrole-role-Mailbox-Manager">
-                <label class="form-check-label" for="assignrole-role-Mailbox-Manager">Mailbox-Manager</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="assignrole-role-Admin">
-                <label class="form-check-label" for="assignrole-role-Admin">Admin</label>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-          <button type="submit" class="btn btn-primary">Speichern</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- /Assign Role Modal -->
-
-<!-- Credentials Management Modal -->
-<div class="modal fade" id="credentialsModal" tabindex="-1" aria-labelledby="credentialsModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <form id="credentialsForm" onsubmit="event.preventDefault(); saveCredentials();">
-        <div class="modal-header">
-          <h5 class="modal-title" id="credentialsModalLabel">Zugangsdaten verwalten</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <input type="hidden" id="credentials-officer-id">
-          <div class="mb-3">
-            <label for="credentials-username" class="form-label">Benutzername</label>
-            <input type="text" class="form-control" id="credentials-username" required>
-          </div>
-          <div class="mb-3">
-            <label for="credentials-password" class="form-label">Neues Passwort</label>
-            <input type="password" class="form-control" id="credentials-password" autocomplete="new-password">
-            <div class="form-text">Leer lassen, um das Passwort nicht zu ändern.</div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-          <button type="submit" class="btn btn-primary">Speichern</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-<!-- /Credentials Management Modal -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="js/app.js"></script>
-  <script src="roles.js"></script>
+  <!-- Modals und Seiteninhalt ENDE -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+  <script src="js/app.js" defer></script>
+  <script src="roles.js" defer></script>
 </body>
 </html>

@@ -1,160 +1,393 @@
+  <!-- Mailbox Modal -->
+  <div class="modal fade" id="mailboxModal" tabindex="-1" aria-labelledby="mailboxModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="mailboxForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="mailboxModalLabel">E-Mail verfassen</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="mailbox-id">
+            <div class="mb-3">
+              <label for="mailbox-from" class="form-label">Von</label>
+              <input type="email" class="form-control" id="mailbox-from" required>
+            </div>
+            <div class="mb-3">
+              <label for="mailbox-to" class="form-label">An</label>
+              <input type="email" class="form-control" id="mailbox-to" required>
+            </div>
+            <div class="mb-3">
+              <label for="mailbox-subject" class="form-label">Betreff</label>
+              <input type="text" class="form-control" id="mailbox-subject" required>
+            </div>
+            <div class="mb-3">
+              <label for="mailbox-body" class="form-label">Nachricht</label>
+              <textarea class="form-control" id="mailbox-body" rows="5" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Senden</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Checklist Modal -->
+  <div class="modal fade" id="checklistModal" tabindex="-1" aria-labelledby="checklistModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="checklistForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="checklistModalLabel">Checkliste bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="checklist-id">
+            <div class="mb-3">
+              <label for="checklist-officer-id" class="form-label">Officer</label>
+              <select class="form-select" id="checklist-officer-id" required>
+                <option value="">Bitte wählen...</option>
+              </select>
+                <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+                  <div class="container-fluid">
+                    <a class="navbar-brand" href="#">KLO</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                      <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                      <ul class="navbar-nav me-auto mb-2 mb-lg-0" id="main-nav">
+                        <!-- Navigation wird dynamisch befüllt -->
+                      </ul>
+                      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                          <a class="nav-link" href="#" id="loginNavBtn">Login</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </nav>
+                <!-- Öffentliche Startseite (sichtbar, wenn nicht eingeloggt) -->
+                <section id="public-home" class="container my-5">
+                  <div class="text-center">
+                    <h1 class="display-4 mb-4">Willkommen bei KLO</h1>
+                    <p class="lead">Dies ist die öffentliche Informationsseite des KLO-Systems.<br>Hier können Sie aktuelle Informationen, Kontaktmöglichkeiten und News veröffentlichen.<br>Bearbeiten Sie diesen Bereich einfach im HTML.</p>
+                    <hr class="my-4">
+                    <div class="row justify-content-center">
+                      <div class="col-md-8">
+                        <h3>Aktuelles</h3>
+                        <ul class="list-group mb-4">
+                          <li class="list-group-item">Beispiel-News 1: Systemupdate am 10.10.2025</li>
+                          <li class="list-group-item">Beispiel-News 2: Neue Funktionen für die Verwaltung</li>
+                        </ul>
+                        <h3>Kontakt</h3>
+                        <p>Sie erreichen uns unter <a href="mailto:info@klo-system.de">info@klo-system.de</a></p>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+                <main class="container my-4" id="main-content" style="display:none;">
+                  <!-- Hauptinhalt wird dynamisch befüllt -->
+                </main>
+  <!-- ITLog Modal -->
+  <div class="modal fade" id="itlogModal" tabindex="-1" aria-labelledby="itlogModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="itlogForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="itlogModalLabel">IT-Log bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="itlog-id">
+            <div class="mb-3">
+              <label for="itlog-event-type" class="form-label">Event-Typ</label>
+              <input type="text" class="form-control" id="itlog-event-type" required>
+            </div>
+            <div class="mb-3">
+              <label for="itlog-officer-id" class="form-label">Officer</label>
+              <select class="form-select" id="itlog-officer-id" required>
+                <option value="">Bitte wählen...</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="itlog-description" class="form-label">Beschreibung</label>
+              <textarea class="form-control" id="itlog-description" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="itlog-created-at" class="form-label">Erstellt am</label>
+              <input type="datetime-local" class="form-control" id="itlog-created-at" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Document Modal -->
+  <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="documentForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="documentModalLabel">Dokument bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="document-id">
+            <div class="mb-3">
+              <label for="document-title" class="form-label">Titel</label>
+              <input type="text" class="form-control" id="document-title" required>
+            </div>
+            <div class="mb-3">
+              <label for="document-content" class="form-label">Inhalt</label>
+              <textarea class="form-control" id="document-content" rows="5" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Module Modal -->
+  <div class="modal fade" id="moduleModal" tabindex="-1" aria-labelledby="moduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="moduleForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="moduleModalLabel">Modul bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="module-id">
+            <div class="mb-3">
+              <label for="module-name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="module-name" required>
+            </div>
+            <div class="mb-3">
+              <label for="module-description" class="form-label">Beschreibung</label>
+              <textarea class="form-control" id="module-description" rows="3"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light">
+          <form id="loginForm" autocomplete="on">
+            <div class="modal-header">
+              <h5 class="modal-title" id="loginModalLabel">Login</h5>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label for="login-username" class="form-label">Benutzername</label>
+                <input type="text" class="form-control" id="login-username" name="username" required autocomplete="username">
+              </div>
+              <div class="mb-3">
+                <label for="login-password" class="form-label">Passwort</label>
+                <input type="password" class="form-control" id="login-password" name="password" required autocomplete="current-password">
+              </div>
+              <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" value="1" id="login-remember">
+                <label class="form-check-label" for="login-remember">
+                  Angemeldet bleiben
+                </label>
+              </div>
+              <div id="login-error" class="text-danger small" style="display:none;"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary w-100">Anmelden</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  <!-- Sanction Modal -->
+  <div class="modal fade" id="sanctionModal" tabindex="-1" aria-labelledby="sanctionModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="sanctionForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="sanctionModalLabel">Sanktion bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="sanction-id">
+            <div class="mb-3">
+              <label for="sanction-officer-id" class="form-label">Officer</label>
+              <select class="form-select" id="sanction-officer-id" required>
+                <option value="">Bitte wählen...</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="sanction-type" class="form-label">Typ</label>
+              <input type="text" class="form-control" id="sanction-type" required>
+            </div>
+            <div class="mb-3">
+              <label for="sanction-issued-by" class="form-label">Ausgestellt von</label>
+              <input type="text" class="form-control" id="sanction-issued-by" required>
+            </div>
+            <div class="mb-3">
+              <label for="sanction-timestamp" class="form-label">Datum/Zeit</label>
+              <input type="datetime-local" class="form-control" id="sanction-timestamp" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- Vehicle Modal -->
+  <div class="modal fade" id="vehicleModal" tabindex="-1" aria-labelledby="vehicleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="vehicleForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="vehicleModalLabel">Fahrzeug bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="vehicle-id">
+            <div class="mb-3">
+              <label for="vehicle-name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="vehicle-name" required>
+            </div>
+            <div class="mb-3">
+              <label for="vehicle-category" class="form-label">Kategorie</label>
+              <input type="text" class="form-control" id="vehicle-category" required>
+            </div>
+            <div class="mb-3">
+              <label for="vehicle-capacity" class="form-label">Sitzplätze</label>
+              <input type="number" class="form-control" id="vehicle-capacity" required>
+            </div>
+            <div class="mb-3">
+              <label for="vehicle-plate" class="form-label">Kennzeichen</label>
+              <input type="text" class="form-control" id="vehicle-plate" required>
+            </div>
+            <div class="mb-3">
+              <label for="vehicle-mileage" class="form-label">Kilometerstand</label>
+              <input type="number" class="form-control" id="vehicle-mileage" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LSPD Dispatch Board</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.1.1/",
-    "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.1.1"
-  }
-}
-</script>
-<style>
-  :root {
-    --bg-primary: #111827; /* gray-900 */
-    --bg-secondary: #1f2937; /* gray-800 */
-    --surface: #374151; /* gray-700 */
-    --border: #4b5563; /* gray-600 */
-    --text-primary: #f9fafb; /* gray-50 */
-    --text-secondary: #d1d5db; /* gray-300 */
-    --text-tertiary: #9ca3af; /* gray-400 */
-    --accent-blue: #3b82f6; /* blue-500 */
-    --accent-blue-hover: #2563eb; /* blue-600 */
-    --accent-green: #22c55e; /* green-500 */
-    --accent-red: #ef4444; /* red-500 */
-    --accent-yellow: #eab308; /* yellow-500 */
-    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-  }
-
-  body {
-    background-color: var(--bg-primary);
-    font-family: var(--font-sans);
-    color: var(--text-secondary);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-  
-  /* Redesigned scrollbar */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: var(--bg-primary);
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--surface);
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--border);
-  }
-
-  @keyframes pulse-red-glow {
-    0%, 100% {
-      box-shadow: 0 0 20px 2px rgba(248, 113, 113, 0.7);
-    }
-    50% {
-      box-shadow: 0 0 45px 12px rgba(248, 113, 113, 0.9);
-    }
-  }
-  .animate-pulse-red-glow {
-    animation: pulse-red-glow 1.5s infinite;
-  }
-
-  @keyframes pulse-white-glow {
-    0%, 100% {
-      text-shadow: 
-        /* Subtle dark outline for sharpness */
-        -1px -1px 0 #333,  
-         1px -1px 0 #333,
-        -1px  1px 0 #333,
-         1px  1px 0 #333,
-        /* Base white glow */
-        0 0 8px #fff;
-    }
-    50% {
-      text-shadow: 
-        /* Subtle dark outline for sharpness */
-        -1px -1px 0 #333,  
-         1px -1px 0 #333,
-        -1px  1px 0 #333,
-         1px  1px 0 #333,
-        /* Pulsed, brighter white glow */
-        0 0 16px #fff,
-        0 0 24px #fff;
-    }
-  }
-  .animate-pulse-white-glow {
-    animation: pulse-white-glow 1.5s infinite;
-  }
-  
-  /* Toggle Switch styles */
-  .switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 22px;
-  }
-
-  .switch input { 
-    opacity: 0;
-    width: 0;
-    height: 0;
-  }
-
-  .slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--surface);
-    transition: .4s;
-    border-radius: 22px;
-  }
-
-  .slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
-    border-radius: 50%;
-  }
-
-  input:checked + .slider {
-    background-color: var(--accent-blue);
-  }
-
-  input:checked + .slider:before {
-    transform: translateX(18px);
-  }
-  
-  @keyframes fade-in-out {
-    0%, 100% { opacity: 0; }
-    10%, 90% { opacity: 1; }
-  }
-  .animate-fade-in-out {
-    animation: fade-in-out 10s ease-in-out forwards;
-  }
-</style>
-<link rel="stylesheet" href="/index.css">
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KLO Webanwendung</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
 </head>
-  <body class="bg-gray-900">
-    <div id="root"></div>
-    <div id="portal-root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+<body class="bg-dark text-light">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">KLO</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link active" href="#officers">Officers</a></li>
+          <li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge</a></li>
+          <li class="nav-item"><a class="nav-link" href="#sanctions">Sanktionen</a></li>
+          <li class="nav-item"><a class="nav-link" href="#modules">Module</a></li>
+          <li class="nav-item"><a class="nav-link" href="#documents">Dokumente</a></li>
+          <li class="nav-item"><a class="nav-link" href="#itlogs">IT-Logs</a></li>
+          <li class="nav-item"><a class="nav-link" href="#checklists">Checklisten</a></li>
+          <li class="nav-item"><a class="nav-link" href="#mailbox">Mailbox</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <main class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div id="officer-sidebar"></div>
+      </div>
+      <div class="col-md-9">
+        <div id="main-content"></div>
+      </div>
+    </div>
+  </main>
+  <footer class="footer mt-5 py-3 bg-secondary text-center text-white">
+    <div class="container">&copy; 2025 KLO Webanwendung</div>
+  </footer>
+
+  <!-- Officer Modal -->
+  <div class="modal fade" id="officerModal" tabindex="-1" aria-labelledby="officerModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <form id="officerForm">
+          <div class="modal-header">
+            <h5 class="modal-title" id="officerModalLabel">Officer bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="officer-id">
+            <div class="mb-3">
+              <label for="officer-badge" class="form-label">Badge Nummer</label>
+              <input type="text" class="form-control" id="officer-badge" required>
+            </div>
+            <div class="mb-3">
+              <label for="officer-firstname" class="form-label">Vorname</label>
+              <input type="text" class="form-control" id="officer-firstname" required>
+            </div>
+            <div class="mb-3">
+              <label for="officer-lastname" class="form-label">Nachname</label>
+              <input type="text" class="form-control" id="officer-lastname" required>
+            </div>
+            <div class="mb-3">
+              <label for="officer-phone" class="form-label">Telefonnummer</label>
+              <input type="text" class="form-control" id="officer-phone">
+            </div>
+            <div class="mb-3">
+              <label for="officer-gender" class="form-label">Geschlecht</label>
+              <select class="form-select" id="officer-gender" required>
+                <option value="male">Männlich</option>
+                <option value="female">Weiblich</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="officer-rank" class="form-label">Rang</label>
+              <input type="text" class="form-control" id="officer-rank" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">Speichern</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
 </html>

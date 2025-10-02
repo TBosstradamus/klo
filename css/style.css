@@ -1,0 +1,13 @@
+body {
+  background-color: #181a1b;
+}
+
+#officer-sidebar {
+  min-height: 400px;
+}
+
+#main-content {
+  min-height: 400px;
+}
+
+/* Zusätzliche Anpassungen für Buttons, Modals, etc. */

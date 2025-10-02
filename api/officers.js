@@ -46,6 +46,19 @@ router.put('/:id/roles', async (req, res) => {
   res.json({ success: true });
 });
 
+// Passwort für Officer ändern/zurücksetzen
+router.put('/:id/password', async (req, res) => {
+  const { password } = req.body;
+  if (!password) return res.status(400).json({ error: 'Kein Passwort angegeben' });
+  // Passwort-Hash erzeugen
+  const bcrypt = require('bcryptjs');
+  const hash = await bcrypt.hash(password, 10);
+  const conn = await mysql.createConnection(dbConfig);
+  await conn.execute('UPDATE officers SET password_hash=? WHERE id=?', [hash, req.params.id]);
+  await conn.end();
+  res.json({ success: true });
+});
+
 // Officer löschen
 router.delete('/:id', async (req, res) => {
   const conn = await mysql.createConnection(dbConfig);

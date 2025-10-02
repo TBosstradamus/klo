@@ -461,8 +461,9 @@ function renderOfficerSidebar(officers) {
           let buttons = '';
           if (canEdit) {
             buttons += `<button class="btn btn-sm btn-primary me-1" onclick="openOfficerModal('${o.id}')">Bearbeiten</button>`;
-            buttons += `<button class="btn btn-sm btn-danger" onclick="deleteOfficer('${o.id}')">Löschen</button>`;
-            buttons += `<button class="btn btn-sm btn-warning" onclick="openAssignRoleModal('${o.id}')">Rollen zuweisen</button>`;
+            buttons += `<button class="btn btn-sm btn-danger me-1" onclick="deleteOfficer('${o.id}')">Löschen</button>`;
+            buttons += `<button class="btn btn-sm btn-warning me-1" onclick="openAssignRoleModal('${o.id}')">Rollen zuweisen</button>`;
+            buttons += `<button class="btn btn-sm btn-secondary" onclick="openCredentialsModal('${o.id}')">Zugangsdaten</button>`;
           }
           return `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
           <span>${o.first_name} ${o.last_name} <span class="badge bg-primary ms-2">${o.rank}</span></span>
@@ -874,4 +875,50 @@ function renderAdminPage() {
       </div>
     </div>
   `;
+}
+
+// Credentials Management
+function openCredentialsModal(officerId) {
+  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || (!currentUser.departmentRoles.includes('Admin') && !currentUser.departmentRoles.includes('Personalabteilung'))) {
+    alert('Kein Zugriff!');
+    return;
+  }
+  fetch('http://localhost:3001/api/officers')
+    .then(res => res.json())
+    .then(officers => {
+      const officer = officers.find(o => o.id == officerId);
+      if (!officer) return;
+      document.getElementById('credentials-officer-id').value = officer.id;
+      document.getElementById('credentials-username').value = officer.username;
+      document.getElementById('credentials-password').value = '';
+      const modal = new bootstrap.Modal(document.getElementById('credentialsModal'));
+      modal.show();
+    });
+}
+
+function saveCredentials() {
+  const officerId = document.getElementById('credentials-officer-id').value;
+  const username = document.getElementById('credentials-username').value;
+  const password = document.getElementById('credentials-password').value;
+  // Username ändern
+  fetch(`http://localhost:3001/api/officers/${officerId}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username })
+  }).then(() => {
+    // Passwort ändern, falls gesetzt
+    if (password) {
+      fetch(`http://localhost:3001/api/officers/${officerId}/password`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      }).then(() => {
+        bootstrap.Modal.getInstance(document.getElementById('credentialsModal')).hide();
+        loadOfficers();
+      });
+    } else {
+      bootstrap.Modal.getInstance(document.getElementById('credentialsModal')).hide();
+      loadOfficers();
+    }
+  });
 }

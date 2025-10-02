@@ -1263,15 +1263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Admin-Seite rendern
 function renderAdminPage() {
-        <div class="col-md-6 col-lg-4">
-          <div class="card bg-dark text-light h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">Team-Ansicht</h5>
-              <p class="card-text">Alle Officers und Rollen im Überblick.</p>
-              <button class="btn btn-primary mt-2" id="open-team-btn">Öffnen</button>
-            </div>
-          </div>
-        </div>
+  // ...hier folgt die eigentliche Logik für die Admin-Seite...
 // Team-Ansicht-Modal (Anzeige aller Officers, Suche, Details, Rechte)
 document.addEventListener('click', function(e) {
   if (e.target && e.target.id === 'open-team-btn') {

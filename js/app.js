@@ -450,22 +450,26 @@ async function loadOfficers() {
 
 function renderOfficerSidebar(officers) {
   const sidebar = document.getElementById('officer-sidebar');
+  // Rollenlogik: Nur Admins und Personalabteilung dürfen Officers bearbeiten/löschen/neu
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
   sidebar.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Officers</h4>'
-    + '<button class="btn btn-success btn-sm" id="addOfficerBtn">Neu</button>'
+    + (canEdit ? '<button class="btn btn-success btn-sm" id="addOfficerBtn">Neu</button>' : '')
     + '</div>'
     + '<ul class="list-group">'
-    + officers.map(o => `
-      <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
+    + officers.map(o => {
+        let buttons = '';
+        if (canEdit) {
+          buttons += `<button class="btn btn-sm btn-primary me-1" onclick="openOfficerModal('${o.id}')">Bearbeiten</button>`;
+          buttons += `<button class="btn btn-sm btn-danger" onclick="deleteOfficer('${o.id}')">Löschen</button>`;
+        }
+        return `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">
         <span>${o.first_name} ${o.last_name} <span class="badge bg-primary ms-2">${o.rank}</span></span>
-        <div>
-          <button class="btn btn-sm btn-primary me-1" onclick="openOfficerModal('${o.id}')">Bearbeiten</button>
-          <button class="btn btn-sm btn-danger" onclick="deleteOfficer('${o.id}')">Löschen</button>
-        </div>
-      </li>
-    `).join('')
+        <div>${buttons}</div>
+      </li>`;
+      }).join('')
     + '</ul>';
-  document.getElementById('addOfficerBtn').onclick = () => openOfficerModal();
+  if (canEdit) document.getElementById('addOfficerBtn').onclick = () => openOfficerModal();
 }
 
 async function openOfficerModal(id) {

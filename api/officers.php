@@ -1,9 +1,11 @@
 
 <?php
-// Fehlerausgabe und Session-Handling GANZ an den Anfang!
+session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-session_start();
+require_once 'db.php';
+header('Content-Type: application/json');
+// Optional: Logging
 error_log('officers.php wurde aufgerufen');
 
 // Testausgabe: Session und DB-Check

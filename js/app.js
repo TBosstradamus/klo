@@ -735,6 +735,7 @@ function setupNavigation() {
 function route() {
   const hash = window.location.hash || '#officers';
   switch (hash) {
+    case '#meindienst': renderMeinDienst(); break;
     case '#officers': loadOfficers(); break;
     case '#vehicles': loadVehicles(); break;
     case '#sanctions': loadSanctions(); break;
@@ -748,6 +749,89 @@ function route() {
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   const nav = document.querySelector(`.nav-link[href='${hash}']`);
   if (nav) nav.classList.add('active');
+}
+
+// --- MEIN DIENST (Dashboard) ---
+function renderMeinDienst() {
+  if (!currentUser) {
+    document.getElementById('main-content').innerHTML = '<div class="alert alert-warning mt-4">Bitte einloggen, um den Dienstbereich zu sehen.</div>';
+    return;
+  }
+  const clockedIn = sessionStorage.getItem('clockedIn') === '1';
+  const clockInTime = sessionStorage.getItem('clockInTime');
+  const now = new Date();
+  let hours = 0;
+  if (clockedIn && clockInTime) {
+    hours = Math.floor((now - new Date(clockInTime)) / 1000 / 60 / 60);
+  }
+  document.getElementById('main-content').innerHTML = `
+    <div class="container py-4">
+      <h2 class="mb-4 text-primary">Mein Dienst</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Stempeluhr</h5>
+              <p class="card-text">Status: <span id="clock-status">${clockedIn ? 'Eingestempelt' : 'Ausgestempelt'}</span></p>
+              <p class="card-text">${clockedIn && clockInTime ? 'Seit: ' + new Date(clockInTime).toLocaleString('de-DE') : ''}</p>
+              <button class="btn btn-${clockedIn ? 'danger' : 'success'} mt-2" id="clock-btn">${clockedIn ? 'Ausstempeln' : 'Einstempeln'}</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Officer-Info</h5>
+              <p class="card-text mb-1"><strong>${currentUser.first_name} ${currentUser.last_name}</strong> (${currentUser.rank})</p>
+              <p class="card-text mb-1">Badge: ${currentUser.badge_number || '-'}</p>
+              <p class="card-text mb-1">Telefon: ${currentUser.phone_number || '-'}</p>
+              <p class="card-text mb-1">Rollen: ${(currentUser.departmentRoles || []).join(', ')}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Lizenzen</h5>
+              <ul class="list-group list-group-flush" id="licenses-list"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Karriere</h5>
+              <p class="card-text">Bereit für den nächsten Schritt?</p>
+              <button class="btn btn-info mt-2" id="uprank-btn">Uprank anfragen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  // Clock-In/Out-Button-Logik
+  document.getElementById('clock-btn').onclick = function() {
+    if (sessionStorage.getItem('clockedIn') === '1') {
+      sessionStorage.setItem('clockedIn', '0');
+      sessionStorage.removeItem('clockInTime');
+    } else {
+      sessionStorage.setItem('clockedIn', '1');
+      sessionStorage.setItem('clockInTime', new Date().toISOString());
+    }
+    renderMeinDienst();
+  };
+  // Uprank-Button-Logik
+  document.getElementById('uprank-btn').onclick = function() {
+    alert('Uprank-Anfrage wurde gesendet!');
+  };
+  // Lizenzen anzeigen
+  const licenses = (currentUser.licenses || []);
+  const list = document.getElementById('licenses-list');
+  if (licenses.length === 0) {
+    list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine Lizenzen vorhanden.</li>';
+  } else {
+    list.innerHTML = licenses.map(l => `<li class="list-group-item bg-dark text-light">${l.name} <span class="badge bg-secondary ms-2">${l.issued_by || ''}</span></li>`).join('');
+  }
 }
 
 // --- Login- und Sichtbarkeits-Logik ---

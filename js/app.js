@@ -365,25 +365,46 @@ async function loadModules() {
 
 function renderModuleGrid(modules) {
   const main = document.getElementById('main-content');
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Leitung Field Training Officer'));
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Module</h4>'
-    + '<button class="btn btn-success btn-sm" id="addModuleBtn">Neu</button>'
+    + (canEdit ? '<button class="btn btn-success btn-sm" id="addModuleBtn">Neu</button>' : '')
     + '</div>'
     + '<div class="row">'
-    + modules.map(m => `
+    + modules.map(m => {
+      let buttons = '';
+      if (canEdit) {
+        buttons += `<button class="btn btn-primary btn-sm me-1" onclick="openModuleModal('${m.id}')">Bearbeiten</button>`;
+        buttons += `<button class="btn btn-danger btn-sm" onclick="deleteModule('${m.id}')">Löschen</button>`;
+      }
+      // Abschluss-Button für alle User
+      buttons += `<button class="btn btn-success btn-sm" onclick="completeModule('${m.id}')">Abschließen</button>`;
+      // Fortschritt anzeigen (Dummy: abgeschlossen, wenn localStorage-Eintrag vorhanden)
+      let done = localStorage.getItem('module_done_' + m.id) === '1';
+      return `
       <div class="col-md-4">
         <div class="card bg-secondary mb-3">
           <div class="card-body">
             <h5 class="card-title">${m.name}</h5>
             <p>${m.description || ''}</p>
-            <button class="btn btn-primary btn-sm me-1" onclick="openModuleModal('${m.id}')">Bearbeiten</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteModule('${m.id}')">Löschen</button>
+            <div class="mb-2">Status: <span class="badge ${done ? 'bg-success' : 'bg-secondary'}">${done ? 'Abgeschlossen' : 'Offen'}</span></div>
+            ${buttons}
           </div>
         </div>
       </div>
-    `).join('')
+      `;
+    }).join('')
     + '</div>';
-  document.getElementById('addModuleBtn').onclick = () => openModuleModal();
+  if (canEdit) document.getElementById('addModuleBtn').onclick = () => openModuleModal();
+}
+
+function completeModule(id) {
+  localStorage.setItem('module_done_' + id, '1');
+  // Logging (vereinfachtes Beispiel)
+  let logs = JSON.parse(localStorage.getItem('module_logs') || '[]');
+  logs.push({ moduleId: id, user: currentUser ? currentUser.username : '', timestamp: new Date().toISOString() });
+  localStorage.setItem('module_logs', JSON.stringify(logs));
+  loadModules();
 }
 
 async function openModuleModal(id) {

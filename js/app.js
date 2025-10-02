@@ -98,32 +98,44 @@ async function loadChecklists() {
 function renderChecklistGrid(checklists) {
   const main = document.getElementById('main-content');
   let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
+  let canAssign = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Leitung Field Training Officer'));
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Checklisten</h4>'
     + (canEdit ? '<div><button class="btn btn-secondary btn-sm me-2" id="templateBtn">Vorlage</button><button class="btn btn-success btn-sm" id="addChecklistBtn">Neu</button></div>' : '')
     + '</div>'
-    + '<table class="table table-dark table-striped"><thead><tr><th>Officer</th><th>Items</th><th>Abgeschlossen</th><th></th></tr></thead><tbody>'
+    + '<table class="table table-dark table-striped"><thead><tr><th>Officer</th><th>Items</th><th>Fortschritt</th><th>Status</th><th></th></tr></thead><tbody>'
     + checklists.map(c => {
         let buttons = '';
+        // Detail-Button für alle
+        buttons += `<button class="btn btn-info btn-sm me-1" onclick="openChecklistDetailModal('${c.id}')">Details</button>`;
         if (canEdit) {
           buttons += `<button class="btn btn-primary btn-sm me-1" onclick="openChecklistModal('${c.id}')">Bearbeiten</button>`;
           buttons += `<button class="btn btn-danger btn-sm" onclick="deleteChecklist('${c.id}')">Löschen</button>`;
         }
+        // Abschluss-Button für Zuweisungsberechtigte, wenn nicht abgeschlossen
+        if (canAssign && !c.is_completed) {
+          buttons += `<button class="btn btn-success btn-sm" onclick="completeChecklist('${c.id}')">Abschließen</button>`;
+        }
+        // Fortschritt berechnen
+        let itemsArr = [];
+        try { itemsArr = JSON.parse(c.items); } catch {}
+        let doneCount = Array.isArray(itemsArr) ? itemsArr.filter(i => i.checked || i.isChecked).length : 0;
+        let totalCount = Array.isArray(itemsArr) ? itemsArr.length : 0;
+        let progress = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
+        let progressBar = `<div class='progress' style='height:18px;'><div class='progress-bar ${progress===100?'bg-success':'bg-info'}' role='progressbar' style='width:${progress}%' aria-valuenow='${progress}' aria-valuemin='0' aria-valuemax='100'>${progress}%</div></div>`;
         // Items als Liste anzeigen
         let itemsHtml = '';
-        try {
-          const arr = JSON.parse(c.items);
-          if (Array.isArray(arr)) {
-            itemsHtml = '<ul class="mb-0">' + arr.map(i => `<li>${i}</li>`).join('') + '</ul>';
-          } else {
-            itemsHtml = `<pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre>`;
-          }
-        } catch { itemsHtml = `<pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre>`; }
+        if (Array.isArray(itemsArr)) {
+          itemsHtml = '<ul class="mb-0">' + itemsArr.map(i => `<li>${i.text || i} ${i.checked||i.isChecked?'<span class=\'text-success\'>&#10003;</span>':''}</li>`).join('') + '</ul>';
+        } else {
+          itemsHtml = `<pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre>`;
+        }
         return `
       <tr>
         <td>${c.officer_id}</td>
         <td>${itemsHtml}</td>
-        <td>${c.is_completed ? 'Ja' : 'Nein'}</td>
+        <td>${progressBar}</td>
+        <td>${c.is_completed ? '<span class="badge bg-success">Abgeschlossen</span>' : '<span class="badge bg-secondary">Offen</span>'}</td>
         <td>${buttons}</td>
       </tr>
         `;
@@ -131,6 +143,56 @@ function renderChecklistGrid(checklists) {
     + '</tbody></table>';
   if (canEdit) document.getElementById('addChecklistBtn').onclick = () => openChecklistModal();
   if (canEdit) document.getElementById('templateBtn').onclick = openChecklistTemplateModal;
+}
+
+// Detail-Modal für Checkliste
+async function openChecklistDetailModal(id) {
+  const res = await fetch('http://localhost:3001/api/checklists');
+  const checklists = await res.json();
+  const checklist = checklists.find(c => c.id === id);
+  let itemsArr = [];
+  try { itemsArr = JSON.parse(checklist.items); } catch {}
+  let html = `<div class="modal fade" id="checklistDetailModal" tabindex="-1" aria-labelledby="checklistDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="checklistDetailModalLabel">Checkliste Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div><b>Officer:</b> ${checklist.officer_id}</div>
+          <div class="my-2"><b>Items:</b><ul>`
+            + (Array.isArray(itemsArr) ? itemsArr.map(i => `<li>${i.text || i} ${i.checked||i.isChecked?'<span class=\'text-success\'>&#10003;</span>':''}</li>`).join('') : checklist.items)
+          + `</ul></div>
+          <div class="mb-2"><b>Status:</b> ${checklist.is_completed ? '<span class="badge bg-success">Abgeschlossen</span>' : '<span class="badge bg-secondary">Offen</span>'}</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  const modal = new bootstrap.Modal(document.getElementById('checklistDetailModal'));
+  modal.show();
+  document.getElementById('checklistDetailModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('checklistDetailModal').remove();
+  });
+}
+
+// Abschluss einer Checkliste
+async function completeChecklist(id) {
+  const res = await fetch('http://localhost:3001/api/checklists');
+  const checklists = await res.json();
+  const checklist = checklists.find(c => c.id === id);
+  if (!checklist) return;
+  checklist.is_completed = 1;
+  await fetch(`http://localhost:3001/api/checklists/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(checklist)
+  });
+  loadChecklists();
 }
 
 // Vorlagenverwaltung

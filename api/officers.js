@@ -36,6 +36,16 @@ router.put('/:id', async (req, res) => {
   res.json({ success: true });
 });
 
+// Rollen für Officer aktualisieren
+router.put('/:id/roles', async (req, res) => {
+  const { roles } = req.body;
+  const rolesString = Array.isArray(roles) ? roles.join(',') : '';
+  const conn = await mysql.createConnection(dbConfig);
+  await conn.execute('UPDATE officers SET department_roles=? WHERE id=?', [rolesString, req.params.id]);
+  await conn.end();
+  res.json({ success: true });
+});
+
 // Officer löschen
 router.delete('/:id', async (req, res) => {
   const conn = await mysql.createConnection(dbConfig);

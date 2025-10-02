@@ -824,3 +824,54 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   showPublicHome();
 });
+
+// Admin-Seite rendern
+function renderAdminPage() {
+  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
+    document.getElementById('main-content').innerHTML = '<div class="alert alert-danger mt-4">Kein Zugriff: Nur für Admins!</div>';
+    return;
+  }
+  document.getElementById('main-content').innerHTML = `
+    <div class="container py-5">
+      <h2 class="mb-4 text-primary">Admin Bereich</h2>
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Officer verwalten</h5>
+              <p class="card-text">Alle Officers anzeigen, bearbeiten, löschen und Rollen zuweisen.</p>
+              <button class="btn btn-primary mt-2" onclick="loadOfficers()">Öffnen</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Homepage bearbeiten</h5>
+              <p class="card-text">Startseite und öffentliche Inhalte verwalten.</p>
+              <button class="btn btn-primary mt-2" onclick="alert('Feature folgt!')">Öffnen</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">IT-Protokolle ansehen</h5>
+              <p class="card-text">Alle IT-Logs und Systemereignisse einsehen.</p>
+              <button class="btn btn-primary mt-2" onclick="loadITLogs()">Öffnen</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Fuhrpark verwalten</h5>
+              <p class="card-text">Fahrzeuge anzeigen, bearbeiten und verwalten.</p>
+              <button class="btn btn-primary mt-2" onclick="loadVehicles()">Öffnen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}

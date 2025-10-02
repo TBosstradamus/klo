@@ -100,7 +100,7 @@ function renderChecklistGrid(checklists) {
   let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Checklisten</h4>'
-    + (canEdit ? '<button class="btn btn-success btn-sm" id="addChecklistBtn">Neu</button>' : '')
+    + (canEdit ? '<div><button class="btn btn-secondary btn-sm me-2" id="templateBtn">Vorlage</button><button class="btn btn-success btn-sm" id="addChecklistBtn">Neu</button></div>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Officer</th><th>Items</th><th>Abgeschlossen</th><th></th></tr></thead><tbody>'
     + checklists.map(c => {
@@ -109,10 +109,20 @@ function renderChecklistGrid(checklists) {
           buttons += `<button class="btn btn-primary btn-sm me-1" onclick="openChecklistModal('${c.id}')">Bearbeiten</button>`;
           buttons += `<button class="btn btn-danger btn-sm" onclick="deleteChecklist('${c.id}')">Löschen</button>`;
         }
+        // Items als Liste anzeigen
+        let itemsHtml = '';
+        try {
+          const arr = JSON.parse(c.items);
+          if (Array.isArray(arr)) {
+            itemsHtml = '<ul class="mb-0">' + arr.map(i => `<li>${i}</li>`).join('') + '</ul>';
+          } else {
+            itemsHtml = `<pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre>`;
+          }
+        } catch { itemsHtml = `<pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre>`; }
         return `
       <tr>
         <td>${c.officer_id}</td>
-        <td><pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre></td>
+        <td>${itemsHtml}</td>
         <td>${c.is_completed ? 'Ja' : 'Nein'}</td>
         <td>${buttons}</td>
       </tr>
@@ -120,6 +130,44 @@ function renderChecklistGrid(checklists) {
       }).join('')
     + '</tbody></table>';
   if (canEdit) document.getElementById('addChecklistBtn').onclick = () => openChecklistModal();
+  if (canEdit) document.getElementById('templateBtn').onclick = openChecklistTemplateModal;
+}
+
+// Vorlagenverwaltung
+function openChecklistTemplateModal() {
+  let template = localStorage.getItem('checklist_template') || '["Ausrüstung geprüft","Fahrzeug gecheckt","Status gemeldet"]';
+  const html = `
+    <div class="modal fade" id="checklistTemplateModal" tabindex="-1" aria-labelledby="checklistTemplateModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="checklistTemplateModalLabel">Checklistenvorlage bearbeiten</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <textarea class="form-control" id="checklist-template-text" rows="6">${template}</textarea>
+            <div class="form-text">Bitte als JSON-Array eingeben, z.B. ["Ausrüstung geprüft","Fahrzeug gecheckt"]</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-primary" id="saveChecklistTemplateBtn">Speichern</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+  const modal = new bootstrap.Modal(document.getElementById('checklistTemplateModal'));
+  modal.show();
+  document.getElementById('saveChecklistTemplateBtn').onclick = function() {
+    const val = document.getElementById('checklist-template-text').value;
+    try { JSON.parse(val); } catch { alert('Ungültiges JSON!'); return; }
+    localStorage.setItem('checklist_template', val);
+    bootstrap.Modal.getInstance(document.getElementById('checklistTemplateModal')).hide();
+    document.getElementById('checklistTemplateModal').remove();
+  };
+  document.getElementById('checklistTemplateModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('checklistTemplateModal').remove();
+  });
 }
 
 async function openChecklistModal(id) {

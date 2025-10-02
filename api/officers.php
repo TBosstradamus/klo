@@ -1,20 +1,9 @@
 
+switch ($method) {
 <?php
 session_start();
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
-require_once 'db.php';
-header('Content-Type: application/json');
-// Optional: Logging
-error_log('officers.php wurde aufgerufen');
-
-// Testausgabe: Session und DB-Check
-if (!file_exists(__DIR__.'/db.php')) {
-    header('Content-Type: application/json');
-    echo json_encode(['error' => 'db.php fehlt!']);
-    exit;
-}
-
 require_once 'db.php';
 header('Content-Type: application/json');
 
@@ -26,7 +15,7 @@ if (!$user) {
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-switch ($method) {
+
     case 'GET': {
         $stmt = $pdo->query('SELECT * FROM officers');
         $officers = $stmt->fetchAll();
@@ -72,7 +61,6 @@ switch ($method) {
         exit;
     }
 }
-
 $user = $_SESSION['user'] ?? null;
 if (!$user) {
     http_response_code(401);

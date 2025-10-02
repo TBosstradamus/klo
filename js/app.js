@@ -9,9 +9,10 @@ async function loadMailbox() {
 
 function renderMailboxGrid(mails) {
   const main = document.getElementById('main-content');
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && currentUser.departmentRoles.includes('Admin');
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Mailbox</h4>'
-    + '<button class="btn btn-success btn-sm" id="addMailBtn">Neue E-Mail</button>'
+    + (canEdit ? '<button class="btn btn-success btn-sm" id="addMailBtn">Neue E-Mail</button>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Von</th><th>An</th><th>Betreff</th><th>Gesendet am</th><th></th></tr></thead><tbody>'
     + mails.map(m => `
@@ -20,13 +21,13 @@ function renderMailboxGrid(mails) {
         <td>${m.to_addr}</td>
         <td>${m.subject}</td>
         <td>${m.sent_at ? new Date(m.sent_at).toLocaleString('de-DE') : ''}</td>
-        <td>
-          <button class="btn btn-danger btn-sm" onclick="deleteMail('${m.id}')">Löschen</button>
-        </td>
+        <td>'
+        + (canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteMail('${m.id}')">Löschen</button>` : '')
+        + '</td>'
       </tr>
     `).join('')
     + '</tbody></table>';
-  document.getElementById('addMailBtn').onclick = () => openMailboxModal();
+  if (canEdit) document.getElementById('addMailBtn').onclick = () => openMailboxModal();
 }
 
 function openMailboxModal() {
@@ -91,9 +92,10 @@ async function loadChecklists() {
 
 function renderChecklistGrid(checklists) {
   const main = document.getElementById('main-content');
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Checklisten</h4>'
-    + '<button class="btn btn-success btn-sm" id="addChecklistBtn">Neu</button>'
+    + (canEdit ? '<button class="btn btn-success btn-sm" id="addChecklistBtn">Neu</button>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Officer</th><th>Items</th><th>Abgeschlossen</th><th></th></tr></thead><tbody>'
     + checklists.map(c => `
@@ -101,14 +103,14 @@ function renderChecklistGrid(checklists) {
         <td>${c.officer_id}</td>
         <td><pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre></td>
         <td>${c.is_completed ? 'Ja' : 'Nein'}</td>
-        <td>
-          <button class="btn btn-primary btn-sm me-1" onclick="openChecklistModal('${c.id}')">Bearbeiten</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteChecklist('${c.id}')">Löschen</button>
-        </td>
+        <td>'
+        + (canEdit ? `<button class="btn btn-primary btn-sm me-1" onclick="openChecklistModal('${c.id}')">Bearbeiten</button>` : '')
+        + (canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteChecklist('${c.id}')">Löschen</button>` : '')
+        + '</td>'
       </tr>
     `).join('')
     + '</tbody></table>';
-  document.getElementById('addChecklistBtn').onclick = () => openChecklistModal();
+  if (canEdit) document.getElementById('addChecklistBtn').onclick = () => openChecklistModal();
 }
 
 async function openChecklistModal(id) {
@@ -177,9 +179,10 @@ async function loadITLogs() {
 
 function renderITLogGrid(itlogs) {
   const main = document.getElementById('main-content');
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('IT-Manager'));
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>IT-Logs</h4>'
-    + '<button class="btn btn-success btn-sm" id="addITLogBtn">Neu</button>'
+    + (canEdit ? '<button class="btn btn-success btn-sm" id="addITLogBtn">Neu</button>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Typ</th><th>Officer</th><th>Beschreibung</th><th>Erstellt am</th><th></th></tr></thead><tbody>'
     + itlogs.map(l => `
@@ -188,14 +191,14 @@ function renderITLogGrid(itlogs) {
         <td>${l.officer_id}</td>
         <td>${l.description || ''}</td>
         <td>${l.created_at ? new Date(l.created_at).toLocaleString('de-DE') : ''}</td>
-        <td>
-          <button class="btn btn-primary btn-sm me-1" onclick="openITLogModal('${l.id}')">Bearbeiten</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteITLog('${l.id}')">Löschen</button>
-        </td>
+        <td>'
+        + (canEdit ? `<button class="btn btn-primary btn-sm me-1" onclick="openITLogModal('${l.id}')">Bearbeiten</button>` : '')
+        + (canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteITLog('${l.id}')">Löschen</button>` : '')
+        + '</td>'
       </tr>
     `).join('')
     + '</tbody></table>';
-  document.getElementById('addITLogBtn').onclick = () => openITLogModal();
+  if (canEdit) document.getElementById('addITLogBtn').onclick = () => openITLogModal();
 }
 
 async function openITLogModal(id) {
@@ -740,29 +743,24 @@ function showPublicHome() {
 function showInternalApp() {
   document.getElementById('public-home').style.display = 'none';
   document.getElementById('main-content').style.display = '';
-  // Navigation wird dynamisch befüllt (hier nur Beispiel)
-  document.getElementById('main-nav').innerHTML = `
-    <li class="nav-item"><a class="nav-link" href="#officers">Officers</a></li>
-    <li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge</a></li>
-    <li class="nav-item"><a class="nav-link" href="#sanctions">Sanktionen</a></li>
-    <li class="nav-item"><a class="nav-link" href="#modules">Module</a></li>
-    <li class="nav-item"><a class="nav-link" href="#documents">Dokumente</a></li>
-    <li class="nav-item"><a class="nav-link" href="#itlogs">IT-Logs</a></li>
-    <li class="nav-item"><a class="nav-link" href="#checklists">Checklisten</a></li>
-    <li class="nav-item"><a class="nav-link" href="#mailbox">Mailbox</a></li>
-    <li class="nav-item"><a class="nav-link" href="#" id="logoutNavBtn">Logout</a></li>
-  `;
-  // Logout-Button-Handler
+  let nav = '';
+  nav += '<li class="nav-item"><a class="nav-link" href="#officers">Officers</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#sanctions">Sanktionen</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#modules">Module</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#documents">Dokumente</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#itlogs">IT-Logs</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#checklists">Checklisten</a></li>';
+  nav += '<li class="nav-item"><a class="nav-link" href="#mailbox">Mailbox</a></li>';
+  if (currentUser && Array.isArray(currentUser.departmentRoles) && currentUser.departmentRoles.includes('Admin')) {
+    nav += '<li class="nav-item"><a class="nav-link text-warning" href="#admin">Admin</a></li>';
+  }
+  nav += '<li class="nav-item"><a class="nav-link" href="#" id="logoutNavBtn">Logout</a></li>';
+  document.getElementById('main-nav').innerHTML = nav;
   document.getElementById('logoutNavBtn').onclick = function(e) {
     e.preventDefault();
     handleLogout();
   };
-      await fetch('api/logout.php', { method: 'POST', credentials: 'include' });
-      currentUser = null;
-      showPublicHome();
-  currentUser = null;
-  sessionStorage.removeItem('loggedInUser');
-  showPublicHome();
 }
 
 function handleLoginSuccess(user) {

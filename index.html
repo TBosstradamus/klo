@@ -314,6 +314,7 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item"><a class="nav-link" href="#meindienst">Mein Dienst</a></li>
+          <li class="nav-item"><a class="nav-link" href="#team">Unser Team</a></li>
           <li class="nav-item"><a class="nav-link" href="#officers">Officers</a></li>
           <li class="nav-item"><a class="nav-link" href="#vehicles">Fahrzeuge</a></li>
           <li class="nav-item"><a class="nav-link" href="#sanctions">Sanktionen</a></li>
@@ -333,6 +334,20 @@
       </div>
       <div class="col-md-9">
         <div id="main-content"></div>
+        <!-- Team Modal -->
+        <div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="teamModalLabel">Unser Team</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="team-modal-body">
+                <!-- Team-Inhalt wird per JS befüllt -->
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </main>

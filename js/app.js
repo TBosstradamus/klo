@@ -756,7 +756,8 @@ function setupNavigation() {
 function route() {
   const hash = window.location.hash || '#officers';
   switch (hash) {
-    case '#meindienst': renderMeinDienst(); break;
+  case '#meindienst': renderMeinDienst(); break;
+  case '#team': renderTeamPage(); break;
     case '#officers': loadOfficers(); break;
     case '#vehicles': loadVehicles(); break;
     case '#sanctions': loadSanctions(); break;
@@ -856,6 +857,35 @@ function renderMeinDienst() {
 }
 
 // --- Login- und Sichtbarkeits-Logik ---
+// --- TEAM ---
+function renderTeamPage() {
+  fetch('http://localhost:3001/api/officers')
+    .then(res => res.json())
+    .then(officers => {
+      let html = '<h2 class="mb-4 text-primary">Unser Team</h2>';
+      html += '<div class="row">';
+      officers.forEach(o => {
+        html += `<div class="col-md-4 mb-3"><div class="card bg-dark text-light h-100"><div class="card-body"><h5 class="card-title">${o.first_name} ${o.last_name}</h5><p class="card-text mb-1">Rang: ${o.rank}</p><p class="card-text mb-1">Badge: ${o.badge_number || '-'}</p><p class="card-text mb-1">Telefon: ${o.phone_number || '-'}</p><p class="card-text mb-1">Rollen: ${(o.departmentRoles || []).join(', ')}</p></div></div></div>`;
+      });
+      html += '</div>';
+      document.getElementById('main-content').innerHTML = html;
+    });
+}
+
+function openTeamModal() {
+  fetch('http://localhost:3001/api/officers')
+    .then(res => res.json())
+    .then(officers => {
+      let html = '<div class="row">';
+      officers.forEach(o => {
+        html += `<div class="col-md-4 mb-3"><div class="card bg-dark text-light h-100"><div class="card-body"><h5 class="card-title">${o.first_name} ${o.last_name}</h5><p class="card-text mb-1">Rang: ${o.rank}</p><p class="card-text mb-1">Badge: ${o.badge_number || '-'}</p><p class="card-text mb-1">Telefon: ${o.phone_number || '-'}</p><p class="card-text mb-1">Rollen: ${(o.departmentRoles || []).join(', ')}</p></div></div></div>`;
+      });
+      html += '</div>';
+      document.getElementById('team-modal-body').innerHTML = html;
+      const modal = new bootstrap.Modal(document.getElementById('teamModal'));
+      modal.show();
+    });
+}
 let currentUser = null;
 
 function showPublicHome() {

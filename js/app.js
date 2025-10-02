@@ -1,83 +1,91 @@
-// Mailbox Modal-Logik
-let currentMail = null;
 
-async function loadMailbox() {
-  const res = await fetch('http://localhost:3001/api/mailbox');
-  const mails = await res.json();
-  renderMailboxGrid(mails);
-}
+// --- ALLE DOM-Zugriffe und Event-Bindings erst nach DOMContentLoaded ---
+document.addEventListener('DOMContentLoaded', function() {
+  // Mailbox Modal-Logik
+  let currentMail = null;
 
-function renderMailboxGrid(mails) {
-  const main = document.getElementById('main-content');
-  // Rollenlogik: Nur Admins und ggf. weitere Rollen dürfen Mails bearbeiten/löschen/neu
-  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Mailbox-Manager'));
-  main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
-    + '<h4>Mailbox</h4>'
-    + (canEdit ? '<button class="btn btn-success btn-sm" id="addMailBtn">Neue E-Mail</button>' : '')
-    + '</div>'
-    + '<table class="table table-dark table-striped"><thead><tr><th>Von</th><th>An</th><th>Betreff</th><th>Gesendet am</th><th></th></tr></thead><tbody>'
-    + mails.map(m => {
-        let buttons = '';
-        if (canEdit) {
-          buttons += `<button class="btn btn-danger btn-sm" onclick="deleteMail('${m.id}')">Löschen</button>`;
-        }
-        return `
-      <tr>
-        <td>${m.from_addr}</td>
-        <td>${m.to_addr}</td>
-        <td>${m.subject}</td>
-        <td>${m.sent_at ? new Date(m.sent_at).toLocaleString('de-DE') : ''}</td>
-        <td>${buttons}</td>
-      </tr>
-        `;
-      }).join('')
-    + '</tbody></table>';
-  if (canEdit) document.getElementById('addMailBtn').onclick = () => openMailboxModal();
-}
-
-function openMailboxModal() {
-  currentMail = null;
-  fillMailboxForm(null);
-  const modal = new bootstrap.Modal(document.getElementById('mailboxModal'));
-  modal.show();
-}
-
-function fillMailboxForm(mail) {
-  document.getElementById('mailbox-id').value = mail ? mail.id : '';
-  document.getElementById('mailbox-from').value = mail ? mail.from_addr : '';
-  document.getElementById('mailbox-to').value = mail ? mail.to_addr : '';
-  document.getElementById('mailbox-subject').value = mail ? mail.subject : '';
-  document.getElementById('mailbox-body').value = mail ? mail.body : '';
-}
-
-document.getElementById('mailboxForm').onsubmit = async function(e) {
-  e.preventDefault();
-  const now = new Date();
-  const mail = {
-    id: crypto.randomUUID(),
-    from_addr: document.getElementById('mailbox-from').value,
-    to_addr: document.getElementById('mailbox-to').value,
-    subject: document.getElementById('mailbox-subject').value,
-    body: document.getElementById('mailbox-body').value,
-    sent_at: now.toISOString().slice(0, 19).replace('T', ' ')
-  };
-  await fetch('http://localhost:3001/api/mailbox', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(mail)
-  });
-  bootstrap.Modal.getInstance(document.getElementById('mailboxModal')).hide();
-  loadMailbox();
-};
-
-async function deleteMail(id) {
-  if (confirm('Wirklich löschen?')) {
-    await fetch(`http://localhost:3001/api/mailbox/${id}`, { method: 'DELETE' });
-    loadMailbox();
+  async function loadMailbox() {
+    const res = await fetch('http://localhost:3001/api/mailbox');
+    const mails = await res.json();
+    renderMailboxGrid(mails);
   }
-}
-// Checklist Modal-Logik
-let currentChecklist = null;
+
+  function renderMailboxGrid(mails) {
+    const main = document.getElementById('main-content');
+    // Rollenlogik: Nur Admins und ggf. weitere Rollen dürfen Mails bearbeiten/löschen/neu
+    let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Mailbox-Manager'));
+    main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
+      + '<h4>Mailbox</h4>'
+      + (canEdit ? '<button class="btn btn-success btn-sm" id="addMailBtn">Neue E-Mail</button>' : '')
+      + '</div>'
+      + '<table class="table table-dark table-striped"><thead><tr><th>Von</th><th>An</th><th>Betreff</th><th>Gesendet am</th><th></th></tr></thead><tbody>'
+      + mails.map(m => {
+          let buttons = '';
+          if (canEdit) {
+            buttons += `<button class="btn btn-danger btn-sm" onclick="deleteMail('${m.id}')">Löschen</button>`;
+          }
+          return `
+        <tr>
+          <td>${m.from_addr}</td>
+          <td>${m.to_addr}</td>
+          <td>${m.subject}</td>
+          <td>${m.sent_at ? new Date(m.sent_at).toLocaleString('de-DE') : ''}</td>
+          <td>${buttons}</td>
+        </tr>
+          `;
+        }).join('')
+      + '</tbody></table>';
+    if (canEdit) document.getElementById('addMailBtn').onclick = () => openMailboxModal();
+  }
+
+  function openMailboxModal() {
+    currentMail = null;
+    fillMailboxForm(null);
+    const modal = new bootstrap.Modal(document.getElementById('mailboxModal'));
+    modal.show();
+  }
+
+  function fillMailboxForm(mail) {
+    document.getElementById('mailbox-id').value = mail ? mail.id : '';
+    document.getElementById('mailbox-from').value = mail ? mail.from_addr : '';
+    document.getElementById('mailbox-to').value = mail ? mail.to_addr : '';
+    document.getElementById('mailbox-subject').value = mail ? mail.subject : '';
+    document.getElementById('mailbox-body').value = mail ? mail.body : '';
+  }
+
+  document.getElementById('mailboxForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const now = new Date();
+    const mail = {
+      id: crypto.randomUUID(),
+      from_addr: document.getElementById('mailbox-from').value,
+      to_addr: document.getElementById('mailbox-to').value,
+      subject: document.getElementById('mailbox-subject').value,
+      body: document.getElementById('mailbox-body').value,
+      sent_at: now.toISOString().slice(0, 19).replace('T', ' ')
+    };
+    await fetch('http://localhost:3001/api/mailbox', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mail)
+    });
+    bootstrap.Modal.getInstance(document.getElementById('mailboxModal')).hide();
+    loadMailbox();
+  };
+
+  async function deleteMail(id) {
+    if (confirm('Wirklich löschen?')) {
+      await fetch(`http://localhost:3001/api/mailbox/${id}`, { method: 'DELETE' });
+      loadMailbox();
+    }
+  }
+
+  // Checklist Modal-Logik
+  let currentChecklist = null;
+  // ... Restlicher Code folgt wie gehabt ...
+
+  // --- ENDE DOMContentLoaded ---
+});
 
 // Hilfsfunktion zum Befüllen von Officer-Dropdowns
 async function fillOfficerDropdown(selectId, selectedId = '') {
@@ -1263,309 +1271,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Admin-Seite rendern
 function renderAdminPage() {
-  // ...hier folgt die eigentliche Logik für die Admin-Seite...
-// Team-Ansicht-Modal (Anzeige aller Officers, Suche, Details, Rechte)
-document.addEventListener('click', function(e) {
-  if (e.target && e.target.id === 'open-team-btn') {
-    openTeamModal();
-  }
-});
-
-function openTeamModal() {
-  let html = '';
-  html += '<div class="modal fade" id="teamModal" tabindex="-1" aria-labelledby="teamModalLabel" aria-hidden="true">';
-  html += '  <div class="modal-dialog modal-xl">';
-  html += '    <div class="modal-content">';
-  html += '      <div class="modal-header">';
-  html += '        <h5 class="modal-title" id="teamModalLabel">Unser Team</h5>';
-  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-  html += '      </div>';
-  html += '      <div class="modal-body">';
-  html += '        <input type="text" class="form-control mb-3" id="team-search" placeholder="Officer suchen...">';
-  html += '        <div id="team-list"></div>';
-  html += '      </div>';
-  html += '    </div>';
-  html += '  </div>';
-  html += '</div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  loadTeamList();
-  const modal = new bootstrap.Modal(document.getElementById('teamModal'));
-  modal.show();
-  document.getElementById('team-search').oninput = function() {
-    loadTeamList(this.value);
-  };
-  document.getElementById('teamModal').addEventListener('hidden.bs.modal', () => {
-    document.getElementById('teamModal').remove();
-  });
-}
-
-function loadTeamList(search) {
-  fetch('api/officers.js')
-    .then(res => res.json())
-    .then(officers => {
-      let html = '<div class="row">';
-      officers.filter(o => {
-        if (!search) return true;
-        const s = search.toLowerCase();
-        return (o.first_name + ' ' + o.last_name + ' ' + o.rank + ' ' + (o.departmentRoles || []).join(' ')).toLowerCase().includes(s);
-      }).forEach(o => {
-        html += `<div class="col-md-4 mb-3"><div class="card bg-dark text-light h-100"><div class="card-body"><h5 class="card-title">${o.first_name} ${o.last_name}</h5><p class="card-text mb-1">Rang: ${o.rank}</p><p class="card-text mb-1">Badge: ${o.badge_number || '-'}</p><p class="card-text mb-1">Telefon: ${o.phone_number || '-'}</p><p class="card-text mb-1">Rollen: ${(o.departmentRoles || []).join(', ')}</p><button class='btn btn-outline-info btn-sm mt-2' onclick='openOfficerDetailModal("${o.id}")'>Details</button></div></div></div>`;
-      });
-      html += '</div>';
-      document.getElementById('team-list').innerHTML = html;
-    });
-}
-
-function openOfficerDetailModal(id) {
-  fetch('api/officers.js')
-    .then(res => res.json())
-    .then(officers => {
-      const o = officers.find(x => x.id === id);
-      if (!o) return;
-      let html = '';
-      html += '<div class="modal fade" id="officerDetailModal" tabindex="-1" aria-labelledby="officerDetailModalLabel" aria-hidden="true">';
-      html += '  <div class="modal-dialog">';
-      html += '    <div class="modal-content">';
-      html += '      <div class="modal-header">';
-      html += '        <h5 class="modal-title" id="officerDetailModalLabel">Officer-Details</h5>';
-      html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-      html += '      </div>';
-      html += '      <div class="modal-body">';
-      html += `        <p><strong>${o.first_name} ${o.last_name}</strong> (${o.rank})</p>`;
-      html += `        <p>Badge: ${o.badge_number || '-'}</p>`;
-      html += `        <p>Telefon: ${o.phone_number || '-'}</p>`;
-      html += `        <p>Rollen: ${(o.departmentRoles || []).join(', ')}</p>`;
-      html += '      </div>';
-      html += '    </div>';
-      html += '  </div>';
-      html += '</div>';
-      document.body.insertAdjacentHTML('beforeend', html);
-      const modal = new bootstrap.Modal(document.getElementById('officerDetailModal'));
-      modal.show();
-      document.getElementById('officerDetailModal').addEventListener('hidden.bs.modal', () => {
-        document.getElementById('officerDetailModal').remove();
-      });
-    });
-}
-// ...existing code...
-// HR-Dokumente-Modal (Upload, Anzeige, Bearbeitung, Löschung)
-document.addEventListener('click', function(e) {
-  if (e.target && e.target.id === 'open-hrdocs-btn') {
-    openHRDocsModal();
-  }
-});
-
-function openHRDocsModal() {
-  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Personalabteilung') || currentUser.departmentRoles.includes('Admin'));
-  let html = '';
-  html += '<div class="modal fade" id="hrDocsModal" tabindex="-1" aria-labelledby="hrDocsModalLabel" aria-hidden="true">';
-  html += '  <div class="modal-dialog modal-lg">';
-  html += '    <div class="modal-content">';
-  html += '      <div class="modal-header">';
-  html += '        <h5 class="modal-title" id="hrDocsModalLabel">HR-Dokumente</h5>';
-  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-  html += '      </div>';
-  html += '      <div class="modal-body">';
-  if (canEdit) {
-    html += '<form id="hrdoc-upload-form" class="mb-3">';
-    html += '  <div class="input-group">';
-    html += '    <input type="file" class="form-control" id="hrdoc-file" required accept="application/pdf,.doc,.docx,.odt,.txt">';
-    html += '    <input type="text" class="form-control" id="hrdoc-title" placeholder="Titel" required>';
-    html += '    <button class="btn btn-success" type="submit">Hochladen</button>';
-    html += '  </div>';
-    html += '</form>';
-  }
-  html += '<ul class="list-group" id="hrdocs-list"></ul>';
-  html += '      </div>';
-  html += '    </div>';
-  html += '  </div>';
-  html += '</div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  loadHRDocsList(canEdit);
-  const modal = new bootstrap.Modal(document.getElementById('hrDocsModal'));
-  modal.show();
-  if (canEdit) {
-    document.getElementById('hrdoc-upload-form').onsubmit = function(e) {
-      e.preventDefault();
-      const fileInput = document.getElementById('hrdoc-file');
-      const titleInput = document.getElementById('hrdoc-title');
-      const file = fileInput.files[0];
-      const title = titleInput.value;
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('title', title);
-      fetch('api/hrdocs.php', {
-        method: 'POST',
-        body: formData
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          loadHRDocsList(canEdit);
-          fileInput.value = '';
-          titleInput.value = '';
-        } else {
-          alert(data.error || 'Fehler beim Upload!');
-        }
-      });
-    };
-  }
-  document.getElementById('hrDocsModal').addEventListener('hidden.bs.modal', () => {
-    document.getElementById('hrDocsModal').remove();
-  });
-}
-
-function loadHRDocsList(canEdit) {
-  fetch('api/hrdocs.php')
-    .then(res => res.json())
-    .then(docs => {
-      const list = document.getElementById('hrdocs-list');
-      list.innerHTML = '';
-      if (!Array.isArray(docs) || docs.length === 0) {
-        list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine HR-Dokumente vorhanden.</li>';
-      } else {
-        docs.forEach(doc => {
-          let actions = `<a href="${doc.url}" target="_blank" class="btn btn-sm btn-outline-info ms-2">Anzeigen</a>`;
-          if (canEdit) {
-            actions += ` <button class='btn btn-sm btn-danger ms-1' onclick='deleteHRDoc("${doc.id}")'>Löschen</button>`;
-          }
-          list.innerHTML += `<li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center">${doc.title} <span>${actions}</span></li>`;
-        });
-      }
-    });
-}
-
-function deleteHRDoc(id) {
-  if (!confirm('Wirklich löschen?')) return;
-  fetch('api/hrdocs.php', {
-    method: 'DELETE',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id })
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      loadHRDocsList(true);
-    } else {
-      alert(data.error || 'Fehler beim Löschen!');
-    }
-  });
-}
-  // Supervisory-Warnung für Nicht-Admins
-  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
-    const main = document.getElementById('main-content');
-    const warn = document.createElement('div');
-    warn.className = 'alert alert-warning d-flex align-items-center my-3';
-    warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16"><path d="M7.938 2.016a.13.13 0 0 1 .125 0l6.857 11.856c.06.104-.015.228-.125.228H1.205a.145.145 0 0 1-.125-.228L7.938 2.016zm.082-1.016a1.13 1.13 0 0 0-1.938 0L.082 12.856A1.145 1.145 0 0 0 1.205 14h13.59a1.145 1.145 0 0 0 1.123-1.144c0-.2-.053-.395-.153-.572L8.02 1zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>' +
-      '<div><strong>Hinweis:</strong> Sie haben Zugriff auf diese Seite. Änderungen sind nur nach Rücksprache mit der zuständigen Leitung erlaubt.</div>';
-    main.prepend(warn);
-  }
-  // Supervisory-Warnung für Nicht-HR/Admin
-  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || (!currentUser.departmentRoles.includes('Personalabteilung') && !currentUser.departmentRoles.includes('Admin'))) {
-    const main = document.getElementById('main-content');
-    const warn = document.createElement('div');
-    warn.className = 'alert alert-warning d-flex align-items-center my-3';
-    warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16"><path d="M7.938 2.016a.13.13 0 0 1 .125 0l6.857 11.856c.06.104-.015.228-.125.228H1.205a.145.145 0 0 1-.125-.228L7.938 2.016zm.082-1.016a1.13 1.13 0 0 0-1.938 0L.082 12.856A1.145 1.145 0 0 0 1.205 14h13.59a1.145 1.145 0 0 0 1.123-1.144c0-.2-.053-.395-.153-.572L8.02 1zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>' +
-      '<div><strong>Hinweis:</strong> Sie haben Zugriff auf diese Seite. Änderungen sind nur nach Rücksprache mit der Personalabteilung erlaubt.</div>';
-    main.prepend(warn);
-  }
-        <div class="col-md-6 col-lg-4">
-          <div class="card bg-dark text-light h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">Einstellungen</h5>
-              <p class="card-text">Systemeinstellungen und Benachrichtigungen verwalten.</p>
-              <button class="btn btn-primary mt-2" id="open-settings-btn">Öffnen</button>
-            </div>
-          </div>
-        </div>
-// Einstellungen-Modal (Passwort ändern, Benachrichtigungen)
-document.addEventListener('click', function(e) {
-  if (e.target && e.target.id === 'open-settings-btn') {
-    openSettingsModal();
-  }
-});
-
-function openSettingsModal() {
-  let html = '';
-  html += '<div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">';
-  html += '  <div class="modal-dialog">';
-  html += '    <div class="modal-content">';
-  html += '      <div class="modal-header">';
-  html += '        <h5 class="modal-title" id="settingsModalLabel">Einstellungen</h5>';
-  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-  html += '      </div>';
-  html += '      <div class="modal-body">';
-  html += '        <label class="form-label">Eigenes Passwort ändern</label>';
-  html += '        <input type="password" class="form-control mb-2" id="settings-old-password" placeholder="Altes Passwort">';
-  html += '        <input type="password" class="form-control mb-2" id="settings-new-password" placeholder="Neues Passwort">';
-  html += '        <hr>';
-  html += '        <label class="form-label">Benachrichtigungen</label>';
-  html += '        <div class="form-check">';
-  html += '          <input class="form-check-input" type="checkbox" id="settings-email-notify">';
-  html += '          <label class="form-check-label" for="settings-email-notify">E-Mail-Benachrichtigungen aktivieren</label>';
-  html += '        </div>';
-  html += '      </div>';
-  html += '      <div class="modal-footer">';
-  html += '        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>';
-  html += '        <button type="button" class="btn btn-primary" id="saveSettingsBtn">Speichern</button>';
-  html += '      </div>';
-  html += '    </div>';
-  html += '  </div>';
-  html += '</div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  // Vorbefüllen (Benachrichtigungen)
-  fetch('api/settings.php')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('settings-email-notify').checked = !!data.email_notify;
-    });
-  const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
-  modal.show();
-  document.getElementById('saveSettingsBtn').onclick = function() {
-    const oldpw = document.getElementById('settings-old-password').value;
-    const newpw = document.getElementById('settings-new-password').value;
-    const email_notify = document.getElementById('settings-email-notify').checked;
-    // Passwort ändern
-    if (oldpw && newpw) {
-      fetch('api/settings.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldpw, newpw, email_notify })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert('Einstellungen gespeichert!');
-          bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
-          document.getElementById('settingsModal').remove();
-        } else {
-          alert(data.error || 'Fehler beim Speichern!');
-        }
-      });
-    } else {
-      // Nur Benachrichtigungen speichern
-      fetch('api/settings.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email_notify })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          alert('Einstellungen gespeichert!');
-          bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
-          document.getElementById('settingsModal').remove();
-        } else {
-          alert(data.error || 'Fehler beim Speichern!');
-        }
-      });
-    }
-  };
-  document.getElementById('settingsModal').addEventListener('hidden.bs.modal', () => {
-    document.getElementById('settingsModal').remove();
-  });
-}
-// ...existing code...
   if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
     document.getElementById('main-content').innerHTML = '<div class="alert alert-danger mt-4">Kein Zugriff: Nur für Admins!</div>';
     return;
@@ -1577,186 +1282,36 @@ function openSettingsModal() {
         <div class="col-md-6 col-lg-4">
           <div class="card bg-dark text-light h-100">
             <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">Officer verwalten</h5>
-              <p class="card-text">Alle Officers anzeigen, bearbeiten, löschen und Rollen zuweisen.</p>
-              <button class="btn btn-primary mt-2" onclick="loadOfficers()">Öffnen</button>
+              <h5 class="card-title">Team-Ansicht</h5>
+              <p class="card-text">Alle Officers und Rollen im Überblick.</p>
+              <button class="btn btn-primary mt-2" id="open-team-btn">Öffnen</button>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card bg-dark text-light h-100">
             <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">Homepage bearbeiten</h5>
-              <p class="card-text">Startseite und öffentliche Inhalte verwalten.</p>
-              <button class="btn btn-primary mt-2" id="edit-homepage-btn">Öffnen</button>
-            </div>
-          </div>
-        </div>
-// Homepage-Editor-Modal (HTML5/Bootstrap, Admin only)
-function openHomepageEditorModal() {
-  let html = '';
-  html += '<div class="modal fade" id="homepageEditorModal" tabindex="-1" aria-labelledby="homepageEditorModalLabel" aria-hidden="true">';
-  html += '  <div class="modal-dialog modal-lg">';
-  html += '    <div class="modal-content">';
-  html += '      <div class="modal-header">';
-  html += '        <h5 class="modal-title" id="homepageEditorModalLabel">Homepage bearbeiten</h5>';
-  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-  html += '      </div>';
-  html += '      <div class="modal-body">';
-  html += '        <textarea class="form-control mb-2" id="homepage-content" rows="10" placeholder="HTML-Inhalt der Startseite"></textarea>';
-  html += '      </div>';
-  html += '      <div class="modal-footer">';
-  html += '        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>';
-  html += '        <button type="button" class="btn btn-primary" id="saveHomepageBtn">Speichern</button>';
-  html += '      </div>';
-  html += '    </div>';
-  html += '  </div>';
-  html += '</div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  // Vorbefüllen mit aktuellem Inhalt
-  fetch('api/homepage.php')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('homepage-content').value = data.content || '';
-    });
-  const modal = new bootstrap.Modal(document.getElementById('homepageEditorModal'));
-  modal.show();
-  document.getElementById('saveHomepageBtn').onclick = function() {
-    const content = document.getElementById('homepage-content').value;
-    fetch('api/homepage.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('homepageEditorModal')).hide();
-        document.getElementById('homepageEditorModal').remove();
-        alert('Homepage gespeichert!');
-        location.reload();
-      } else {
-        alert('Fehler beim Speichern!');
-      }
-    });
-  };
-  document.getElementById('homepageEditorModal').addEventListener('hidden.bs.modal', () => {
-    document.getElementById('homepageEditorModal').remove();
-  });
-}
-
-// Popout-Editor-Modal (HTML5/Bootstrap, Admin only)
-function openPopoutEditorModal() {
-  let html = '';
-  html += '<div class="modal fade" id="popoutEditorModal" tabindex="-1" aria-labelledby="popoutEditorModalLabel" aria-hidden="true">';
-  html += '  <div class="modal-dialog modal-lg">';
-  html += '    <div class="modal-content">';
-  html += '      <div class="modal-header">';
-  html += '        <h5 class="modal-title" id="popoutEditorModalLabel">Popout bearbeiten</h5>';
-  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-  html += '      </div>';
-  html += '      <div class="modal-body">';
-  html += '        <textarea class="form-control mb-2" id="popout-content" rows="10" placeholder="HTML-Inhalt für Popout"></textarea>';
-  html += '      </div>';
-  html += '      <div class="modal-footer">';
-  html += '        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>';
-  html += '        <button type="button" class="btn btn-primary" id="savePopoutBtn">Speichern</button>';
-  html += '      </div>';
-  html += '    </div>';
-  html += '  </div>';
-  html += '</div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  fetch('api/popout.php')
-    .then(res => res.json())
-    .then(data => {
-      document.getElementById('popout-content').value = data.content || '';
-    });
-  const modal = new bootstrap.Modal(document.getElementById('popoutEditorModal'));
-  modal.show();
-  document.getElementById('savePopoutBtn').onclick = function() {
-    const content = document.getElementById('popout-content').value;
-    fetch('api/popout.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('popoutEditorModal')).hide();
-        document.getElementById('popoutEditorModal').remove();
-        alert('Popout gespeichert!');
-      } else {
-        alert('Fehler beim Speichern!');
-      }
-    });
-  };
-  document.getElementById('popoutEditorModal').addEventListener('hidden.bs.modal', () => {
-    document.getElementById('popoutEditorModal').remove();
-  });
-}
-
-document.addEventListener('click', function(e) {
-  if (e.target && e.target.id === 'edit-popout-btn') {
-    openPopoutEditorModal();
-  }
-});
-  // Popout-Button auf Startseite anzeigen
-  fetch('api/popout.php')
-    .then(res => res.json())
-    .then(data => {
-      if (data.content) {
-        let btn = document.createElement('button');
-        btn.className = 'btn btn-outline-info btn-sm my-3';
-        btn.textContent = 'Popout anzeigen';
-        btn.onclick = function() {
-          openPopoutViewerModal(data.content);
-        };
-        document.getElementById('public-home').appendChild(btn);
-      }
-    });
-// Popout-Viewer-Modal (nur Anzeige)
-function openPopoutViewerModal(content) {
-  let html = '';
-  html += '<div class="modal fade" id="popoutViewerModal" tabindex="-1" aria-labelledby="popoutViewerModalLabel" aria-hidden="true">';
-  html += '  <div class="modal-dialog modal-lg">';
-  html += '    <div class="modal-content">';
-  html += '      <div class="modal-header">';
-  html += '        <h5 class="modal-title" id="popoutViewerModalLabel">Popout</h5>';
-  html += '        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>';
-  html += '      </div>';
-  html += '      <div class="modal-body">';
-  html +=           content;
-  html += '      </div>';
-  html += '    </div>';
-  html += '  </div>';
-  html += '</div>';
-  document.body.insertAdjacentHTML('beforeend', html);
-  const modal = new bootstrap.Modal(document.getElementById('popoutViewerModal'));
-  modal.show();
-  document.getElementById('popoutViewerModal').addEventListener('hidden.bs.modal', () => {
-    document.getElementById('popoutViewerModal').remove();
-  });
-}
-  if (e.target && e.target.id === 'edit-homepage-btn') {
-    openHomepageEditorModal();
-  }
-});
-        <div class="col-md-6 col-lg-4">
-          <div class="card bg-dark text-light h-100">
-            <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">IT-Protokolle ansehen</h5>
-              <p class="card-text">Alle IT-Logs und Systemereignisse einsehen.</p>
-              <button class="btn btn-primary mt-2" onclick="loadITLogs()">Öffnen</button>
+              <h5 class="card-title">HR-Dokumente</h5>
+              <p class="card-text">Personalabteilungs-Dokumente verwalten.</p>
+              <button class="btn btn-primary mt-2" id="open-hrdocs-btn">Öffnen</button>
             </div>
           </div>
         </div>
         <div class="col-md-6 col-lg-4">
           <div class="card bg-dark text-light h-100">
             <div class="card-body d-flex flex-column justify-content-between">
-              <h5 class="card-title">Fuhrpark verwalten</h5>
-              <p class="card-text">Fahrzeuge anzeigen, bearbeiten und verwalten.</p>
-              <button class="btn btn-primary mt-2" onclick="loadVehicles()">Öffnen</button>
+              <h5 class="card-title">Popout-Editor</h5>
+              <p class="card-text">Popout-Inhalte für die Startseite verwalten.</p>
+              <button class="btn btn-primary mt-2" id="edit-popout-btn">Öffnen</button>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 col-lg-4">
+          <div class="card bg-dark text-light h-100">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <h5 class="card-title">Einstellungen</h5>
+              <p class="card-text">Systemeinstellungen und Benachrichtigungen verwalten.</p>
+              <button class="btn btn-primary mt-2" id="open-settings-btn">Öffnen</button>
             </div>
           </div>
         </div>
@@ -1764,49 +1319,21 @@ function openPopoutViewerModal(content) {
     </div>
   `;
 }
-
-// Credentials Management
-function openCredentialsModal(officerId) {
-  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || (!currentUser.departmentRoles.includes('Admin') && !currentUser.departmentRoles.includes('Personalabteilung'))) {
-    alert('Kein Zugriff!');
-    return;
+// Supervisory-Warnung für Nicht-Admins
+  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || !currentUser.departmentRoles.includes('Admin')) {
+    const main = document.getElementById('main-content');
+    const warn = document.createElement('div');
+    warn.className = 'alert alert-warning d-flex align-items-center my-3';
+    warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16"><path d="M7.938 2.016a.13.130 0 0 1 .125 0l6.857 11.856c.06.104-.015.228-.125.228H1.205a.145.145 0 0 1-.125-.228L7.938 2.016zm.082-1.016a1.13 1.13 0 0 0-1.938 0L.082 12.856A1.145 1.145 0 0 0 1.205 14h13.59a1.145 1.145 0 0 0 1.123-1.144c0-.2-.053-.395-.153-.572L8.02 1zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>' +
+      '<div><strong>Hinweis:</strong> Sie haben Zugriff auf diese Seite. Änderungen sind nur nach Rücksprache mit der zuständigen Leitung erlaubt.</div>';
+    main.prepend(warn);
   }
-  fetch('http://localhost:3001/api/officers')
-    .then(res => res.json())
-    .then(officers => {
-      const officer = officers.find(o => o.id == officerId);
-      if (!officer) return;
-      document.getElementById('credentials-officer-id').value = officer.id;
-      document.getElementById('credentials-username').value = officer.username;
-      document.getElementById('credentials-password').value = '';
-      const modal = new bootstrap.Modal(document.getElementById('credentialsModal'));
-      modal.show();
-    });
-}
-
-function saveCredentials() {
-  const officerId = document.getElementById('credentials-officer-id').value;
-  const username = document.getElementById('credentials-username').value;
-  const password = document.getElementById('credentials-password').value;
-  // Username ändern
-  fetch(`http://localhost:3001/api/officers/${officerId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username })
-  }).then(() => {
-    // Passwort ändern, falls gesetzt
-    if (password) {
-      fetch(`http://localhost:3001/api/officers/${officerId}/password`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      }).then(() => {
-        bootstrap.Modal.getInstance(document.getElementById('credentialsModal')).hide();
-        loadOfficers();
-      });
-    } else {
-      bootstrap.Modal.getInstance(document.getElementById('credentialsModal')).hide();
-      loadOfficers();
-    }
-  });
-}
+  // Supervisory-Warnung für Nicht-HR/Admin
+  if (!currentUser || !Array.isArray(currentUser.departmentRoles) || (!currentUser.departmentRoles.includes('Personalabteilung') && !currentUser.departmentRoles.includes('Admin'))) {
+    const main = document.getElementById('main-content');
+    const warn = document.createElement('div');
+    warn.className = 'alert alert-warning d-flex align-items-center my-3';
+    warn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-triangle me-2" viewBox="0 0 16 16"><path d="M7.938 2.016a.13.130 0 0 1 .125 0l6.857 11.856c.06.104-.015.228-.125.228H1.205a.145.145 0 0 1-.125-.228L7.938 2.016zm.082-1.016a1.13 1.13 0 0 0-1.938 0L.082 12.856A1.145 1.145 0 0 0 1.205 14h13.59a1.145 1.145 0 0 0 1.123-1.144c0-.2-.053-.395-.153-.572L8.02 1zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg>' +
+      '<div><strong>Hinweis:</strong> Sie haben Zugriff auf diese Seite. Änderungen sind nur nach Rücksprache mit der Personalabteilung erlaubt.</div>';
+    main.prepend(warn);
+  }

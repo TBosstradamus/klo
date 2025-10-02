@@ -9,23 +9,28 @@ async function loadMailbox() {
 
 function renderMailboxGrid(mails) {
   const main = document.getElementById('main-content');
-  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && currentUser.departmentRoles.includes('Admin');
+  // Rollenlogik: Nur Admins und ggf. weitere Rollen dürfen Mails bearbeiten/löschen/neu
+  let canEdit = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Mailbox-Manager'));
   main.innerHTML = '<div class="d-flex justify-content-between align-items-center mb-2">'
     + '<h4>Mailbox</h4>'
     + (canEdit ? '<button class="btn btn-success btn-sm" id="addMailBtn">Neue E-Mail</button>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Von</th><th>An</th><th>Betreff</th><th>Gesendet am</th><th></th></tr></thead><tbody>'
-    + mails.map(m => `
+    + mails.map(m => {
+        let buttons = '';
+        if (canEdit) {
+          buttons += `<button class="btn btn-danger btn-sm" onclick="deleteMail('${m.id}')">Löschen</button>`;
+        }
+        return `
       <tr>
         <td>${m.from_addr}</td>
         <td>${m.to_addr}</td>
         <td>${m.subject}</td>
         <td>${m.sent_at ? new Date(m.sent_at).toLocaleString('de-DE') : ''}</td>
-        <td>'
-        + (canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteMail('${m.id}')">Löschen</button>` : '')
-        + '</td>'
+        <td>${buttons}</td>
       </tr>
-    `).join('')
+        `;
+      }).join('')
     + '</tbody></table>';
   if (canEdit) document.getElementById('addMailBtn').onclick = () => openMailboxModal();
 }
@@ -98,17 +103,21 @@ function renderChecklistGrid(checklists) {
     + (canEdit ? '<button class="btn btn-success btn-sm" id="addChecklistBtn">Neu</button>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Officer</th><th>Items</th><th>Abgeschlossen</th><th></th></tr></thead><tbody>'
-    + checklists.map(c => `
+    + checklists.map(c => {
+        let buttons = '';
+        if (canEdit) {
+          buttons += `<button class="btn btn-primary btn-sm me-1" onclick="openChecklistModal('${c.id}')">Bearbeiten</button>`;
+          buttons += `<button class="btn btn-danger btn-sm" onclick="deleteChecklist('${c.id}')">Löschen</button>`;
+        }
+        return `
       <tr>
         <td>${c.officer_id}</td>
         <td><pre class="text-light" style="white-space:pre-wrap;max-width:300px;">${c.items}</pre></td>
         <td>${c.is_completed ? 'Ja' : 'Nein'}</td>
-        <td>'
-        + (canEdit ? `<button class="btn btn-primary btn-sm me-1" onclick="openChecklistModal('${c.id}')">Bearbeiten</button>` : '')
-        + (canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteChecklist('${c.id}')">Löschen</button>` : '')
-        + '</td>'
+        <td>${buttons}</td>
       </tr>
-    `).join('')
+        `;
+      }).join('')
     + '</tbody></table>';
   if (canEdit) document.getElementById('addChecklistBtn').onclick = () => openChecklistModal();
 }
@@ -185,18 +194,22 @@ function renderITLogGrid(itlogs) {
     + (canEdit ? '<button class="btn btn-success btn-sm" id="addITLogBtn">Neu</button>' : '')
     + '</div>'
     + '<table class="table table-dark table-striped"><thead><tr><th>Typ</th><th>Officer</th><th>Beschreibung</th><th>Erstellt am</th><th></th></tr></thead><tbody>'
-    + itlogs.map(l => `
+    + itlogs.map(l => {
+        let buttons = '';
+        if (canEdit) {
+          buttons += `<button class="btn btn-primary btn-sm me-1" onclick="openITLogModal('${l.id}')">Bearbeiten</button>`;
+          buttons += `<button class="btn btn-danger btn-sm" onclick="deleteITLog('${l.id}')">Löschen</button>`;
+        }
+        return `
       <tr>
         <td>${l.event_type}</td>
         <td>${l.officer_id}</td>
         <td>${l.description || ''}</td>
         <td>${l.created_at ? new Date(l.created_at).toLocaleString('de-DE') : ''}</td>
-        <td>'
-        + (canEdit ? `<button class="btn btn-primary btn-sm me-1" onclick="openITLogModal('${l.id}')">Bearbeiten</button>` : '')
-        + (canEdit ? `<button class="btn btn-danger btn-sm" onclick="deleteITLog('${l.id}')">Löschen</button>` : '')
-        + '</td>'
+        <td>${buttons}</td>
       </tr>
-    `).join('')
+        `;
+      }).join('')
     + '</tbody></table>';
   if (canEdit) document.getElementById('addITLogBtn').onclick = () => openITLogModal();
 }

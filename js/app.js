@@ -476,7 +476,7 @@ async function deleteDocument(id) {
 let currentModule = null;
 
 async function loadModules() {
-  const res = await fetch('api/modules');
+  const res = await fetch('api/modules.php');
   const modules = await res.json();
   renderModuleGrid(modules);
 }
@@ -527,7 +527,7 @@ function completeModule(id) {
 
 async function openModuleModal(id) {
   if (id) {
-  const res = await fetch('api/modules');
+  const res = await fetch('api/modules.php');
     const modules = await res.json();
     currentModule = modules.find(m => m.id === id);
   } else {
@@ -553,13 +553,13 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
     description: document.getElementById('module-description').value
   };
   if (id) {
-  await fetch(`api/modules/${id}`, {
+  await fetch(`api/modules.php?id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(module)
     });
   } else {
-  await fetch('api/modules', {
+  await fetch('api/modules.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(module)
@@ -571,7 +571,7 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
 
 async function deleteModule(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/modules/${id}`, { method: 'DELETE' });
+  await fetch(`api/modules.php?id=${id}`, { method: 'DELETE' });
     loadModules();
   }
 }
@@ -582,7 +582,7 @@ async function deleteModule(id) {
 let currentOfficer = null;
 
 async function loadOfficers() {
-  const res = await fetch('api/officers');
+  const res = await fetch('api/officers.php');
   if (!res.ok) {
     const text = await res.text();
     console.error('Fehler beim Laden der Officers:', res.status, text);

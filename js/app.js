@@ -739,14 +739,13 @@ async function loadOfficers() {
     alert('Antwort ist kein JSON!\n' + text);
     return;
   }
-  if (res.headers.get('content-type')?.includes('application/json')) {
   const json = await res.json();
-  const officers = json.data ?? json;
-    renderOfficerSidebar(officers);
-  } else {
-    const text = await res.text();
-    alert('Fehler beim Laden der Officers: ' + text);
+  const officers = Array.isArray(json.data) ? json.data : [];
+  if (!Array.isArray(officers)) {
+    alert('Officers konnten nicht geladen werden: ' + (json.error || 'Unbekannter Fehler'));
+    return;
   }
+  renderOfficerSidebar(officers);
 }
 
 function renderOfficerSidebar(officers) {

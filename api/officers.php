@@ -1,6 +1,3 @@
-session_start();
-global $_SESSION;
-switch ($method) {
 <?php
 ini_set('session.save_path', '/www/htdocs/w01d9b24/lspd.bosstradamus.de/sessions');
 session_start();

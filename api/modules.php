@@ -35,7 +35,7 @@ switch ($method) {
     case 'GET':
         $stmt = $pdo->query('SELECT * FROM modules');
         $modules = $stmt->fetchAll();
-        echo json_encode($modules);
+        echo json_encode(['data' => $modules]);
         break;
     case 'POST':
         // Nur Admin darf Module anlegen

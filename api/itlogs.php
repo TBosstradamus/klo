@@ -31,10 +31,12 @@ $canViewAll = in_array('Admin', $user['departmentRoles']) || in_array('Personala
 if ($canViewAll) {
     $stmt = $pdo->query('SELECT * FROM itlogs ORDER BY created_at DESC');
     $logs = $stmt->fetchAll();
-} else {
-    // Nur eigene Logs
-    $stmt = $pdo->prepare('SELECT * FROM itlogs WHERE officer_id = ? ORDER BY created_at DESC');
-    $stmt->execute([$user['id']]);
-    $logs = $stmt->fetchAll();
+    } else {
+        // Nur eigene Logs
+        $stmt = $pdo->prepare('SELECT * FROM itlogs WHERE officer_id = ? ORDER BY created_at DESC');
+        $stmt->execute([$user['id']]);
+        $logs = $stmt->fetchAll();
+    }
+    echo json_encode(['data' => $logs]);
 }
 echo json_encode($logs);

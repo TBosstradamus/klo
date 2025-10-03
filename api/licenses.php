@@ -30,11 +30,9 @@ $method = $_SERVER['REQUEST_METHOD'];
 switch ($method) {
     case 'GET':
         // Lizenzen für aktuellen User oder für Officer (Admin/Personalabteilung)
-        $officer_id = isset($_GET['officer_id']) ? $_GET['officer_id'] : $user['id'];
-        $stmt = $pdo->prepare('SELECT * FROM licenses WHERE officer_id = ?');
-        $stmt->execute([$officer_id]);
-        $licenses = $stmt->fetchAll();
-        echo json_encode($licenses);
+            $stmt = $pdo->query('SELECT * FROM licenses');
+            $licenses = $stmt->fetchAll();
+            echo json_encode(['data' => $licenses]);
         break;
     case 'POST':
         // Nur Admin/Personalabteilung darf hinzufügen

@@ -57,7 +57,7 @@ switch ($method) {
     case 'GET':
         $stmt = $pdo->query('SELECT * FROM officers');
         $officers = $stmt->fetchAll();
-        echo json_encode($officers);
+        echo json_encode(['data' => $officers]);
         exit;
     case 'POST':
         if (!in_array('Admin', $user['departmentRoles']) && !in_array('Personalabteilung', $user['departmentRoles'])) {

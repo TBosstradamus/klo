@@ -14,10 +14,11 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentMail = null;
 
   async function loadMailbox() {
-  const res = await fetch('api/db.php?module=mailbox&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=mailbox&action=list', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const mails = await res.json();
+  const json = await res.json();
+  const mails = json.data ?? json;
       renderMailboxGrid(mails);
     } else {
       const text = await res.text();
@@ -83,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
       body: document.getElementById('mailbox-body').value,
       sent_at: now.toISOString().slice(0, 19).replace('T', ' ')
     };
-  await fetch('api/db.php?module=mailbox&action=save', {
+  await fetch('api/session_router.php?module=mailbox&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function deleteMail(id) {
     if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=mailbox&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=mailbox&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
       loadMailbox();
     }
   }
@@ -109,11 +110,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Hilfsfunktion zum Befüllen von Officer-Dropdowns
 async function fillOfficerDropdown(selectId, selectedId = '') {
-  const res = await fetch('api/db.php?module=officers&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=officers&action=list', { credentials: 'include' });
   let officers = [];
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      officers = await res.json();
+  const json = await res.json();
+  officers = json.data ?? json;
     } else {
       const text = await res.text();
       alert('Fehler beim Laden der Officers: ' + text);
@@ -131,10 +133,11 @@ async function fillOfficerDropdown(selectId, selectedId = '') {
 }
 
 async function loadChecklists() {
-  const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=checklists&action=list', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const checklists = await res.json();
+  const json = await res.json();
+  const checklists = json.data ?? json;
       renderChecklistGrid(checklists);
     } else {
       const text = await res.text();
@@ -197,11 +200,12 @@ function renderChecklistGrid(checklists) {
 
 // Detail-Modal für Checkliste
 async function openChecklistDetailModal(id) {
-  const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=checklists&action=list', { credentials: 'include' });
   let checklists = [];
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      checklists = await res.json();
+  const json = await res.json();
+  checklists = json.data ?? json;
     } else {
       const text = await res.text();
       alert('Fehler beim Laden der Checklisten: ' + text);
@@ -244,11 +248,12 @@ async function openChecklistDetailModal(id) {
 
 // Abschluss einer Checkliste
 async function completeChecklist(id) {
-  const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=checklists&action=list', { credentials: 'include' });
   let checklists = [];
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      checklists = await res.json();
+  const json = await res.json();
+  checklists = json.data ?? json;
     } else {
       const text = await res.text();
       alert('Fehler beim Laden der Checklisten: ' + text);
@@ -310,7 +315,8 @@ function openChecklistTemplateModal() {
 async function openChecklistModal(id) {
   if (id) {
   const res = await fetch('api/db.php?module=checklists&action=list');
-    const checklists = await res.json();
+  const json = await res.json();
+  const checklists = json.data ?? json;
     currentChecklist = checklists.find(c => c.id === id);
   } else {
     currentChecklist = null;
@@ -340,14 +346,14 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
     is_completed: document.getElementById('checklist-completed').value === '1' ? 1 : 0
   };
   if (id) {
-  await fetch(`api/db.php?module=checklists&action=update&id=${id}`, {
+  await fetch(`api/session_router.php?module=checklists&action=update&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(checklist)
     });
   } else {
-  await fetch('api/db.php?module=checklists&action=save', {
+  await fetch('api/session_router.php?module=checklists&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -360,7 +366,7 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
 
 async function deleteChecklist(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=checklists&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=checklists&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadChecklists();
   }
 }
@@ -368,10 +374,11 @@ async function deleteChecklist(id) {
 let currentITLog = null;
 
 async function loadITLogs() {
-  const res = await fetch('api/db.php?module=itlogs&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=itlogs&action=list', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const itlogs = await res.json();
+  const json = await res.json();
+  const itlogs = json.data ?? json;
       renderITLogGrid(itlogs);
     } else {
       const text = await res.text();
@@ -413,8 +420,9 @@ function renderITLogGrid(itlogs) {
 
 async function openITLogModal(id) {
   if (id) {
-  const res = await fetch('api/db.php?module=itlogs&action=list');
-    const itlogs = await res.json();
+  const res = await fetch('api/session_router.php?module=itlogs&action=list');
+  const json = await res.json();
+  const itlogs = json.data ?? json;
     currentITLog = itlogs.find(l => l.id === id);
   } else {
     currentITLog = null;
@@ -444,14 +452,14 @@ document.getElementById('itlogForm').onsubmit = async function(e) {
     created_at: new Date(document.getElementById('itlog-created-at').value).toISOString().slice(0, 19).replace('T', ' ')
   };
   if (id) {
-  await fetch(`api/db.php?module=itlogs&action=update&id=${id}`, {
+  await fetch(`api/session_router.php?module=itlogs&action=update&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(log)
     });
   } else {
-  await fetch('api/db.php?module=itlogs&action=save', {
+  await fetch('api/session_router.php?module=itlogs&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -464,7 +472,7 @@ document.getElementById('itlogForm').onsubmit = async function(e) {
 
 async function deleteITLog(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=itlogs&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=itlogs&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadITLogs();
   }
 }
@@ -472,10 +480,11 @@ async function deleteITLog(id) {
 let currentDocument = null;
 
 async function loadDocuments() {
-  const res = await fetch('api/db.php?module=documents&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=documents&action=list', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const documents = await res.json();
+  const json = await res.json();
+  const documents = json.data ?? json;
       renderDocumentGrid(documents);
     } else {
       const text = await res.text();
@@ -513,11 +522,12 @@ function renderDocumentGrid(documents) {
 
 async function openDocumentModal(id) {
   if (id) {
-  const res = await fetch('api/db.php?module=documents&action=list', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=documents&action=list', { credentials: 'include' });
   let documents = [];
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      documents = await res.json();
+  const json = await res.json();
+  documents = json.data ?? json;
     } else {
       const text = await res.text();
       alert('Fehler beim Laden der Dokumente: ' + text);
@@ -554,14 +564,14 @@ document.getElementById('documentForm').onsubmit = async function(e) {
     created_at: id ? undefined : now.toISOString().slice(0, 19).replace('T', ' ')
   };
   if (id) {
-  await fetch(`api/db.php?module=documents&action=update&id=${id}`, {
+  await fetch(`api/session_router.php?module=documents&action=update&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(doc)
     });
   } else {
-  await fetch('api/db.php?module=documents&action=save', {
+  await fetch('api/session_router.php?module=documents&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -574,7 +584,7 @@ document.getElementById('documentForm').onsubmit = async function(e) {
 
 async function deleteDocument(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=documents&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=documents&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadDocuments();
   }
 }
@@ -582,10 +592,11 @@ async function deleteDocument(id) {
 let currentModule = null;
 
 async function loadModules() {
-  const res = await fetch('api/modules.php', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=modules', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const modules = await res.json();
+  const json = await res.json();
+  const modules = json.data ?? json;
       renderModuleGrid(modules);
     } else {
       const text = await res.text();
@@ -643,11 +654,12 @@ function completeModule(id) {
 
 async function openModuleModal(id) {
   if (id) {
-  const res = await fetch('api/modules.php', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=modules', { credentials: 'include' });
   let modules = [];
   if (res.headers.get('content-type')?.includes('application/json')) {
     if (res.headers.get('content-type')?.includes('application/json')) {
-      modules = await res.json();
+  const json = await res.json();
+  modules = json.data ?? json;
     } else {
       const text = await res.text();
       alert('Fehler beim Laden der Module: ' + text);
@@ -682,14 +694,14 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
     description: document.getElementById('module-description').value
   };
   if (id) {
-  await fetch(`api/modules.php?id=${id}`, {
+  await fetch(`api/session_router.php?module=modules&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(module)
     });
   } else {
-  await fetch('api/modules.php', {
+  await fetch('api/session_router.php?module=modules', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -702,7 +714,7 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
 
 async function deleteModule(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/modules.php?id=${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=modules&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadModules();
   }
 }
@@ -713,7 +725,7 @@ async function deleteModule(id) {
 let currentOfficer = null;
 
 async function loadOfficers() {
-  const res = await fetch('api/officers.php', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=officers', { credentials: 'include' });
   if (!res.ok) {
     const text = await res.text();
     console.error('Fehler beim Laden der Officers:', res.status, text);
@@ -728,7 +740,8 @@ async function loadOfficers() {
     return;
   }
   if (res.headers.get('content-type')?.includes('application/json')) {
-    const officers = await res.json();
+  const json = await res.json();
+  const officers = json.data ?? json;
     renderOfficerSidebar(officers);
   } else {
     const text = await res.text();
@@ -764,9 +777,10 @@ function renderOfficerSidebar(officers) {
 
 async function openOfficerModal(id) {
   if (id) {
-  const res = await fetch(`api/officers`, { credentials: 'include' });
+  const res = await fetch(`api/session_router.php?module=officers`, { credentials: 'include' });
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const officers = await res.json();
+  const json = await res.json();
+  const officers = json.data ?? json;
       currentOfficer = officers.find(o => o.id === id);
     } else {
       const text = await res.text();
@@ -809,14 +823,14 @@ document.addEventListener('DOMContentLoaded', function() {
         rank: document.getElementById('officer-rank').value
       };
       if (id) {
-        await fetch(`api/officers/${id}`, {
+  await fetch(`api/session_router.php?module=officers&id=${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify(officer)
         });
       } else {
-        await fetch('api/officers', {
+  await fetch('api/session_router.php?module=officers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
@@ -832,7 +846,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function deleteOfficer(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/officers/${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=officers&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadOfficers();
   }
 }
@@ -842,9 +856,10 @@ async function deleteOfficer(id) {
 let currentVehicle = null;
 
 async function loadVehicles() {
-  const res = await fetch('api/vehicles', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=vehicles', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
-    const vehicles = await res.json();
+  const json = await res.json();
+  const vehicles = json.data ?? json;
     renderVehicleGrid(vehicles);
   } else {
     const text = await res.text();
@@ -880,9 +895,10 @@ function renderVehicleGrid(vehicles) {
 
 async function openVehicleModal(id) {
   if (id) {
-  const res = await fetch('api/vehicles', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=vehicles', { credentials: 'include' });
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const vehicles = await res.json();
+  const json = await res.json();
+  const vehicles = json.data ?? json;
       currentVehicle = vehicles.find(v => v.id === id);
     } else {
       const text = await res.text();
@@ -918,14 +934,14 @@ document.getElementById('vehicleForm').onsubmit = async function(e) {
     mileage: parseInt(document.getElementById('vehicle-mileage').value, 10)
   };
   if (id) {
-  await fetch(`api/vehicles/${id}`, {
+  await fetch(`api/session_router.php?module=vehicles&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(vehicle)
     });
   } else {
-  await fetch('api/vehicles', {
+  await fetch('api/session_router.php?module=vehicles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -938,7 +954,7 @@ document.getElementById('vehicleForm').onsubmit = async function(e) {
 
 async function deleteVehicle(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/vehicles/${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=vehicles&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadVehicles();
   }
 }
@@ -948,9 +964,10 @@ async function deleteVehicle(id) {
 let currentSanction = null;
 
 async function loadSanctions() {
-  const res = await fetch('api/sanctions', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=sanctions', { credentials: 'include' });
   if (res.headers.get('content-type')?.includes('application/json')) {
-    const sanctions = await res.json();
+  const json = await res.json();
+  const sanctions = json.data ?? json;
     renderSanctionsTable(sanctions);
   } else {
     const text = await res.text();
@@ -983,9 +1000,10 @@ function renderSanctionsTable(sanctions) {
 
 async function openSanctionModal(id) {
   if (id) {
-  const res = await fetch('api/sanctions', { credentials: 'include' });
+  const res = await fetch('api/session_router.php?module=sanctions', { credentials: 'include' });
     if (res.headers.get('content-type')?.includes('application/json')) {
-      const sanctions = await res.json();
+  const json = await res.json();
+  const sanctions = json.data ?? json;
       currentSanction = sanctions.find(s => s.id === id);
     } else {
       const text = await res.text();
@@ -1020,14 +1038,14 @@ document.getElementById('sanctionForm').onsubmit = async function(e) {
     timestamp: new Date(document.getElementById('sanction-timestamp').value).toISOString()
   };
   if (id) {
-  await fetch(`api/sanctions/${id}`, {
+  await fetch(`api/session_router.php?module=sanctions&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
       body: JSON.stringify(sanction)
     });
   } else {
-  await fetch('api/sanctions', {
+  await fetch('api/session_router.php?module=sanctions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -1040,7 +1058,7 @@ document.getElementById('sanctionForm').onsubmit = async function(e) {
 
 async function deleteSanction(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/sanctions/${id}`, { method: 'DELETE', credentials: 'include' });
+  await fetch(`api/session_router.php?module=sanctions&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadSanctions();
   }
 }
@@ -1092,9 +1110,10 @@ function renderMeinDienst() {
   }
 // Uprank/Derank-Protokollseite
 function renderUprankLog() {
-  fetch('api/itlogs.php', { credentials: 'include' })
+  fetch('api/session_router.php?module=itlogs', { credentials: 'include' })
     .then(res => res.json())
-    .then(logs => {
+    .then(json => {
+      const logs = json.data ?? json;
       // Nur Beförderungs-/Degradierungs-Logs anzeigen
       logs = logs.filter(l => l.event_type === 'officer_role_updated');
       let html = `<div class="container my-4">
@@ -1232,7 +1251,7 @@ function openUprankModal() {
       document.getElementById('uprank-error').style.display = 'block';
       return;
     }
-    fetch('api/uprank.php', {
+  fetch('api/session_router.php?module=uprank', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -1260,9 +1279,10 @@ function openUprankModal() {
   const list = document.getElementById('licenses-list');
   let canEditLic = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
   // AJAX: Lizenzen vom Backend holen
-  fetch('api/licenses.php')
+  fetch('api/session_router.php?module=licenses')
   .then(res => res.json())
-  .then(licenses => {
+  .then(json => {
+    const licenses = json.data ?? json;
       list.innerHTML = '';
       if (!Array.isArray(licenses) || licenses.length === 0) {
         list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine Lizenzen vorhanden.</li>';
@@ -1322,14 +1342,14 @@ function openLicenseModal(license) {
     const expires_at = document.getElementById('license-expires-at').value;
     const method = license.id ? 'PUT' : 'POST';
     const body = license.id ? { id: license.id, name, issued_by, expires_at } : { officer_id: currentUser.id, name, issued_by, expires_at };
-    fetch('api/licenses.php', {
+  fetch('api/session_router.php?module=licenses', {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify(body)
       })
-    .then(res => res.json())
-    .then(() => {
+  .then(res => res.json())
+  .then(() => {
       bootstrap.Modal.getInstance(document.getElementById('licenseModal')).hide();
       document.getElementById('licenseModal').remove();
       renderMeinDienst();
@@ -1342,7 +1362,7 @@ function openLicenseModal(license) {
 
 function deleteLicense(license) {
   if (!confirm('Wirklich löschen?')) return;
-  fetch('api/licenses.php', {
+  fetch('api/session_router.php?module=licenses', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
@@ -1356,9 +1376,10 @@ function deleteLicense(license) {
 // --- Login- und Sichtbarkeits-Logik ---
 // --- TEAM ---
 function renderTeamPage() {
-  fetch('api/officers')
+  fetch('api/session_router.php?module=officers')
     .then(res => res.json())
-    .then(officers => {
+    .then(json => {
+      const officers = json.data ?? json;
       let html = '<h2 class="mb-4 text-primary">Unser Team</h2>';
       html += '<div class="row">';
       officers.forEach(o => {
@@ -1370,9 +1391,10 @@ function renderTeamPage() {
 }
 
 function openTeamModal() {
-  fetch('api/officers')
+  fetch('api/session_router.php?module=officers')
     .then(res => res.json())
-    .then(officers => {
+    .then(json => {
+      const officers = json.data ?? json;
       let html = '<div class="row">';
       officers.forEach(o => {
         html += `<div class="col-md-4 mb-3"><div class="card bg-dark text-light h-100"><div class="card-body"><h5 class="card-title">${o.first_name} ${o.last_name}</h5><p class="card-text mb-1">Rang: ${o.rank}</p><p class="card-text mb-1">Badge: ${o.badge_number || '-'}</p><p class="card-text mb-1">Telefon: ${o.phone_number || '-'}</p><p class="card-text mb-1">Rollen: ${(o.departmentRoles || []).join(', ')}</p></div></div></div>`;
@@ -1386,9 +1408,9 @@ function openTeamModal() {
 let currentUser = null;
 
 function showPublicHome() {
-  fetch('api/homepage.php', { credentials: 'include' })
-    .then(res => res.json())
-    .then(data => {
+  fetch('api/homepage.php', { credentials: 'include' }) // Homepage bleibt direkt
+  .then(res => res.json())
+  .then(data => {
       document.getElementById('public-home').innerHTML = data.content || '';
       document.getElementById('public-home').style.display = '';
       document.getElementById('main-content').style.display = 'none';
@@ -1444,19 +1466,19 @@ document.addEventListener('DOMContentLoaded', function() {
       const username = document.getElementById('login-username').value;
       const password = document.getElementById('login-password').value;
       try {
-        const res = await fetch('api/login.php', {
+  const res = await fetch('api/login.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({ username, password })
         });
         if (!res.ok) {
-          const err = await res.json();
+    const err = await res.json();
           document.getElementById('login-error').innerText = err.error || 'Login fehlgeschlagen!';
           document.getElementById('login-error').style.display = '';
           return;
         }
-        const user = await res.json();
+  const user = await res.json();
         handleLoginSuccess(user);
         bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
         document.getElementById('login-error').style.display = 'none';

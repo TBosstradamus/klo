@@ -1,3 +1,4 @@
+<?php
 ini_set('session.save_path', '/www/htdocs/w01d9b24/lspd.bosstradamus.de/sessions');
 session_start();
 header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
@@ -6,23 +7,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Headers: Content-Type');
     exit;
 }
-header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
-header('Access-Control-Allow-Credentials: true');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Headers: Content-Type');
-    exit;
-}
-<?php
-// /api/hrdocs.php
-require_once 'db.php';
 header('Content-Type: application/json');
-session_start();
-
+require_once 'db.php';
 $uploadDir = __DIR__ . '/../uploads/hrdocs/';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 $fileIndex = __DIR__ . '/../hrdocs_index.json';
 if (!file_exists($fileIndex)) file_put_contents($fileIndex, '[]');
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $docs = json_decode(file_get_contents($fileIndex), true);
     foreach ($docs as &$doc) {
@@ -31,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     echo json_encode($docs);
     exit;
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_SESSION['user']) || !(in_array('Personalabteilung', $_SESSION['user']['departmentRoles']) || in_array('Admin', $_SESSION['user']['departmentRoles']))) {
         http_response_code(403);

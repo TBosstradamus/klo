@@ -1,3 +1,4 @@
+<?php
 ini_set('session.save_path', '/www/htdocs/w01d9b24/lspd.bosstradamus.de/sessions');
 session_start();
 header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
@@ -6,20 +7,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Headers: Content-Type');
     exit;
 }
-header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
-header('Access-Control-Allow-Credentials: true');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Headers: Content-Type');
-    exit;
-}
-<?php
-// /api/homepage.php
-require_once 'db.php';
 header('Content-Type: application/json');
-session_start();
-
+require_once 'db.php';
 $file = __DIR__ . '/../homepage_content.json';
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (file_exists($file)) {
         $data = json_decode(file_get_contents($file), true);
@@ -29,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     exit;
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_SESSION['user']) || !in_array('Admin', $_SESSION['user']['departmentRoles'])) {
         http_response_code(403);

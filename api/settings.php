@@ -1,3 +1,4 @@
+<?php
 ini_set('session.save_path', '/www/htdocs/w01d9b24/lspd.bosstradamus.de/sessions');
 session_start();
 header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
@@ -6,27 +7,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Headers: Content-Type');
     exit;
 }
-header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
-header('Access-Control-Allow-Credentials: true');
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    header('Access-Control-Allow-Headers: Content-Type');
-    exit;
-}
-<?php
-// /api/settings.php
-require_once 'db.php';
 header('Content-Type: application/json');
-session_start();
-
+require_once 'db.php';
 if (!isset($_SESSION['user'])) {
     http_response_code(401);
     echo json_encode(['error' => 'Nicht eingeloggt']);
     exit;
 }
-
 $user = $_SESSION['user'];
 $file = __DIR__ . '/../settings_' . $user['id'] . '.json';
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (file_exists($file)) {
         $data = json_decode(file_get_contents($file), true);
@@ -36,7 +25,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     exit;
 }
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
     // Passwort ändern

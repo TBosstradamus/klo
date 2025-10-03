@@ -36,25 +36,3 @@ function db_query($sql, $params = []) {
         return $stmt->rowCount();
     }
 }
-
-// Dispatcher für verschiedene Module/Aktionen
-$action = $_GET['action'] ?? '';
-$module = $_GET['module'] ?? '';
-
-switch ($module) {
-    case 'officers':
-        if ($action === 'list') {
-            echo json_encode(db_query('SELECT * FROM officers'));
-        } elseif ($action === 'roles' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-            $input = json_decode(file_get_contents('php://input'), true);
-            $roles = isset($input['roles']) ? implode(',', $input['roles']) : '';
-            $id = $_GET['id'] ?? '';
-            db_query('UPDATE officers SET department_roles=? WHERE id=?', [$roles, $id]);
-            echo json_encode(['success' => true]);
-        }
-        // ...weitere Officer-Aktionen
-        break;
-    // ...weitere Module
-        default:
-            // KEIN Output hier! Fehlerbehandlung erfolgt im aufrufenden API-Modul.
-}

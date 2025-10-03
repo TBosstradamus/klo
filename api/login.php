@@ -1,6 +1,14 @@
 <?php
 // /api/login.php
 session_start();
+if (session_status() === PHP_SESSION_ACTIVE) {
+    setcookie(session_name(), session_id(), [
+        'path' => '/',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'None'
+    ]);
+}
 header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
 header('Access-Control-Allow-Credentials: true');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

@@ -5,6 +5,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Headers: Content-Type');
     exit;
 }
+header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
+header('Access-Control-Allow-Credentials: true');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Headers: Content-Type');
+    exit;
+}
 <?php
 // /api/hrdocs.php
 require_once 'db.php';

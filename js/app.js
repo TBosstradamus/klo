@@ -1,3 +1,12 @@
+// Hilfsfunktion für sicheres JSON-Parsing
+function safeJsonParse(val, fallback = []) {
+  try {
+    if (typeof val === 'string') return JSON.parse(val);
+    return fallback;
+  } catch {
+    return fallback;
+  }
+}
 
 // --- ALLE DOM-Zugriffe und Event-Bindings erst nach DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', function() {
@@ -6,8 +15,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function loadMailbox() {
   const res = await fetch('api/db.php?module=mailbox&action=list', { credentials: 'include' });
-    const mails = await res.json();
-    renderMailboxGrid(mails);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const mails = await res.json();
+      renderMailboxGrid(mails);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Mailbox: ' + text);
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Mailbox: ' + text);
+  }
   }
 
   function renderMailboxGrid(mails) {
@@ -91,7 +110,20 @@ document.addEventListener('DOMContentLoaded', function() {
 // Hilfsfunktion zum Befüllen von Officer-Dropdowns
 async function fillOfficerDropdown(selectId, selectedId = '') {
   const res = await fetch('api/db.php?module=officers&action=list', { credentials: 'include' });
-  const officers = await res.json();
+  let officers = [];
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      officers = await res.json();
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Officers: ' + text);
+      return;
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Officers: ' + text);
+    return;
+  }
   const select = document.getElementById(selectId);
   select.innerHTML = '<option value="">Bitte wählen</option>' + officers.map(o =>
     `<option value="${o.id}" ${o.id === selectedId ? 'selected' : ''}>${o.first_name} ${o.last_name} (${o.rank})</option>`
@@ -100,8 +132,18 @@ async function fillOfficerDropdown(selectId, selectedId = '') {
 
 async function loadChecklists() {
   const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
-  const checklists = await res.json();
-  renderChecklistGrid(checklists);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const checklists = await res.json();
+      renderChecklistGrid(checklists);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Checklisten: ' + text);
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Checklisten: ' + text);
+  }
 }
 
 function renderChecklistGrid(checklists) {
@@ -126,8 +168,7 @@ function renderChecklistGrid(checklists) {
           buttons += `<button class="btn btn-success btn-sm" onclick="completeChecklist('${c.id}')">Abschließen</button>`;
         }
         // Fortschritt berechnen
-        let itemsArr = [];
-        try { itemsArr = JSON.parse(c.items); } catch {}
+  let itemsArr = safeJsonParse(c.items, []);
         let doneCount = Array.isArray(itemsArr) ? itemsArr.filter(i => i.checked || i.isChecked).length : 0;
         let totalCount = Array.isArray(itemsArr) ? itemsArr.length : 0;
         let progress = totalCount > 0 ? Math.round((doneCount / totalCount) * 100) : 0;
@@ -157,10 +198,22 @@ function renderChecklistGrid(checklists) {
 // Detail-Modal für Checkliste
 async function openChecklistDetailModal(id) {
   const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
-  const checklists = await res.json();
+  let checklists = [];
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      checklists = await res.json();
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Checklisten: ' + text);
+      return;
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Checklisten: ' + text);
+    return;
+  }
   const checklist = checklists.find(c => c.id === id);
-  let itemsArr = [];
-  try { itemsArr = JSON.parse(checklist.items); } catch {}
+  let itemsArr = safeJsonParse(checklist.items, []);
   let html = `<div class="modal fade" id="checklistDetailModal" tabindex="-1" aria-labelledby="checklistDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -192,7 +245,20 @@ async function openChecklistDetailModal(id) {
 // Abschluss einer Checkliste
 async function completeChecklist(id) {
   const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
-  const checklists = await res.json();
+  let checklists = [];
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      checklists = await res.json();
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Checklisten: ' + text);
+      return;
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Checklisten: ' + text);
+    return;
+  }
   const checklist = checklists.find(c => c.id === id);
   if (!checklist) return;
   checklist.is_completed = 1;
@@ -231,7 +297,7 @@ function openChecklistTemplateModal() {
   modal.show();
   document.getElementById('saveChecklistTemplateBtn').onclick = function() {
     const val = document.getElementById('checklist-template-text').value;
-    try { JSON.parse(val); } catch { alert('Ungültiges JSON!'); return; }
+  if (safeJsonParse(val, null) === null) { alert('Ungültiges JSON!'); return; }
     localStorage.setItem('checklist_template', val);
     bootstrap.Modal.getInstance(document.getElementById('checklistTemplateModal')).hide();
     document.getElementById('checklistTemplateModal').remove();
@@ -266,7 +332,7 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
   e.preventDefault();
   const id = document.getElementById('checklist-id').value;
   let items = document.getElementById('checklist-items').value;
-  try { JSON.parse(items); } catch { alert('Items müssen gültiges JSON sein!'); return; }
+  if (safeJsonParse(items, null) === null) { alert('Items müssen gültiges JSON sein!'); return; }
   const checklist = {
     id: id || crypto.randomUUID(),
     officer_id: document.getElementById('checklist-officer-id').value,
@@ -303,8 +369,18 @@ let currentITLog = null;
 
 async function loadITLogs() {
   const res = await fetch('api/db.php?module=itlogs&action=list', { credentials: 'include' });
-  const itlogs = await res.json();
-  renderITLogGrid(itlogs);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const itlogs = await res.json();
+      renderITLogGrid(itlogs);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der IT-Logs: ' + text);
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der IT-Logs: ' + text);
+  }
 }
 
 function renderITLogGrid(itlogs) {
@@ -397,8 +473,18 @@ let currentDocument = null;
 
 async function loadDocuments() {
   const res = await fetch('api/db.php?module=documents&action=list', { credentials: 'include' });
-  const documents = await res.json();
-  renderDocumentGrid(documents);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const documents = await res.json();
+      renderDocumentGrid(documents);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Dokumente: ' + text);
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Dokumente: ' + text);
+  }
 }
 
 function renderDocumentGrid(documents) {
@@ -428,7 +514,20 @@ function renderDocumentGrid(documents) {
 async function openDocumentModal(id) {
   if (id) {
   const res = await fetch('api/db.php?module=documents&action=list', { credentials: 'include' });
-    const documents = await res.json();
+  let documents = [];
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      documents = await res.json();
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Dokumente: ' + text);
+      return;
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Dokumente: ' + text);
+    return;
+  }
     currentDocument = documents.find(d => d.id === id);
   } else {
     currentDocument = null;
@@ -484,8 +583,18 @@ let currentModule = null;
 
 async function loadModules() {
   const res = await fetch('api/modules.php', { credentials: 'include' });
-  const modules = await res.json();
-  renderModuleGrid(modules);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const modules = await res.json();
+      renderModuleGrid(modules);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Module: ' + text);
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Module: ' + text);
+  }
 }
 
 function renderModuleGrid(modules) {
@@ -526,7 +635,7 @@ function renderModuleGrid(modules) {
 function completeModule(id) {
   localStorage.setItem('module_done_' + id, '1');
   // Logging (vereinfachtes Beispiel)
-  let logs = JSON.parse(localStorage.getItem('module_logs') || '[]');
+  let logs = safeJsonParse(localStorage.getItem('module_logs') || '[]', []);
   logs.push({ moduleId: id, user: currentUser ? currentUser.username : '', timestamp: new Date().toISOString() });
   localStorage.setItem('module_logs', JSON.stringify(logs));
   loadModules();
@@ -535,7 +644,20 @@ function completeModule(id) {
 async function openModuleModal(id) {
   if (id) {
   const res = await fetch('api/modules.php', { credentials: 'include' });
-    const modules = await res.json();
+  let modules = [];
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      modules = await res.json();
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Module: ' + text);
+      return;
+    }
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Module: ' + text);
+    return;
+  }
     currentModule = modules.find(m => m.id === id);
   } else {
     currentModule = null;
@@ -605,8 +727,13 @@ async function loadOfficers() {
     alert('Antwort ist kein JSON!\n' + text);
     return;
   }
-  const officers = await res.json();
-  renderOfficerSidebar(officers);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    const officers = await res.json();
+    renderOfficerSidebar(officers);
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Officers: ' + text);
+  }
 }
 
 function renderOfficerSidebar(officers) {
@@ -638,8 +765,14 @@ function renderOfficerSidebar(officers) {
 async function openOfficerModal(id) {
   if (id) {
   const res = await fetch(`api/officers`, { credentials: 'include' });
-    const officers = await res.json();
-    currentOfficer = officers.find(o => o.id === id);
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const officers = await res.json();
+      currentOfficer = officers.find(o => o.id === id);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Officers: ' + text);
+      return;
+    }
   } else {
     currentOfficer = null;
   }
@@ -710,8 +843,13 @@ let currentVehicle = null;
 
 async function loadVehicles() {
   const res = await fetch('api/vehicles', { credentials: 'include' });
-  const vehicles = await res.json();
-  renderVehicleGrid(vehicles);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    const vehicles = await res.json();
+    renderVehicleGrid(vehicles);
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Fahrzeuge: ' + text);
+  }
 }
 
 function renderVehicleGrid(vehicles) {
@@ -743,8 +881,14 @@ function renderVehicleGrid(vehicles) {
 async function openVehicleModal(id) {
   if (id) {
   const res = await fetch('api/vehicles', { credentials: 'include' });
-    const vehicles = await res.json();
-    currentVehicle = vehicles.find(v => v.id === id);
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const vehicles = await res.json();
+      currentVehicle = vehicles.find(v => v.id === id);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Fahrzeuge: ' + text);
+      return;
+    }
   } else {
     currentVehicle = null;
   }
@@ -805,8 +949,13 @@ let currentSanction = null;
 
 async function loadSanctions() {
   const res = await fetch('api/sanctions', { credentials: 'include' });
-  const sanctions = await res.json();
-  renderSanctionsTable(sanctions);
+  if (res.headers.get('content-type')?.includes('application/json')) {
+    const sanctions = await res.json();
+    renderSanctionsTable(sanctions);
+  } else {
+    const text = await res.text();
+    alert('Fehler beim Laden der Sanktionen: ' + text);
+  }
 }
 
 function renderSanctionsTable(sanctions) {
@@ -835,8 +984,14 @@ function renderSanctionsTable(sanctions) {
 async function openSanctionModal(id) {
   if (id) {
   const res = await fetch('api/sanctions', { credentials: 'include' });
-    const sanctions = await res.json();
-    currentSanction = sanctions.find(s => s.id === id);
+    if (res.headers.get('content-type')?.includes('application/json')) {
+      const sanctions = await res.json();
+      currentSanction = sanctions.find(s => s.id === id);
+    } else {
+      const text = await res.text();
+      alert('Fehler beim Laden der Sanktionen: ' + text);
+      return;
+    }
   } else {
     currentSanction = null;
   }
@@ -1318,12 +1473,12 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', () => {
   const saved = sessionStorage.getItem('loggedInUser');
   if (saved) {
-    try {
-      currentUser = JSON.parse(saved);
+    currentUser = safeJsonParse(saved, null);
+    if (currentUser) {
       showInternalApp();
       route();
       return;
-    } catch {}
+    }
   }
   showPublicHome();
 });

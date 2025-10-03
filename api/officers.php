@@ -5,7 +5,20 @@
 <?php
 // ACHTUNG: KEIN ZEICHEN, KEIN LEERZEICHEN, KEIN BOM VOR DIESER ZEILE!
 
+ini_set('session.save_path', '/www/htdocs/w01d9b24/lspd.bosstradamus.de/sessions');
+file_put_contents(__DIR__ . '/../session_debug.txt', 'session.save_path: ' . ini_get('session.save_path') . ' is_writable: ' . (is_writable(ini_get('session.save_path')) ? 'yes' : 'no') . PHP_EOL, FILE_APPEND);
 session_start();
+file_put_contents(__DIR__ . '/../session_debug.txt', 'session_id after start: ' . session_id() . PHP_EOL, FILE_APPEND);
+// Debug: Schreibe Session-Infos in /workspaces/klo/session_debug.txt
+$debugFile = __DIR__ . '/../session_debug.txt';
+$debugData = print_r([
+    'PHPSESSID' => $_COOKIE[session_name()] ?? null,
+    'session_id' => session_id(),
+    'session' => $_SESSION
+], true);
+if (@file_put_contents($debugFile, $debugData, FILE_APPEND) === false) {
+    error_log('Konnte Session-Debug nicht schreiben: ' . $debugFile);
+}
 header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
 header('Access-Control-Allow-Credentials: true');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

@@ -1,6 +1,9 @@
 <?php
 // /api/login.php
+ini_set('session.save_path', '/www/htdocs/w01d9b24/lspd.bosstradamus.de/sessions');
+file_put_contents(__DIR__ . '/../session_debug.txt', 'session.save_path: ' . ini_get('session.save_path') . ' is_writable: ' . (is_writable(ini_get('session.save_path')) ? 'yes' : 'no') . PHP_EOL, FILE_APPEND);
 session_start();
+file_put_contents(__DIR__ . '/../session_debug.txt', 'session_id after start: ' . session_id() . PHP_EOL, FILE_APPEND);
 if (session_status() === PHP_SESSION_ACTIVE) {
     setcookie(session_name(), session_id(), [
         'path' => '/',

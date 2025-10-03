@@ -1,9 +1,12 @@
 <?php
 
-// zentrale db.php für alle API-Module
-header('Content-Type: application/json; charset=utf-8');
 $host = 'localhost';
 $db   = 'klo';
+// HINWEIS: Diese Datei darf KEINEN Output (echo, header, exit) erzeugen, wenn sie als Include genutzt wird!
+// Entferne alle header()- und echo-Ausgaben, die nicht in einer Funktion gekapselt sind.
+// Die eigentliche Logik für API-Module muss in den jeweiligen API-Dateien (z.B. officers.php) liegen.
+
+// header('Content-Type: application/json; charset=utf-8');
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';

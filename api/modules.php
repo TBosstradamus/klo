@@ -1,3 +1,10 @@
+session_start();
+header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
+header('Access-Control-Allow-Credentials: true');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Headers: Content-Type');
+    exit;
+}
 <?php
 // Output-Buffering und Fehlerausgabe unterdrücken
 ob_clean();

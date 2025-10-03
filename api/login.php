@@ -1,7 +1,7 @@
 <?php
 // /api/login.php
 session_start();
-header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
 header('Access-Control-Allow-Credentials: true');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header('Access-Control-Allow-Headers: Content-Type');

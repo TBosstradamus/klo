@@ -1,3 +1,12 @@
+// CORS-Header für alle API-Module, die db.php einbinden
+if (php_sapi_name() !== 'cli') {
+    header('Access-Control-Allow-Origin: https://lspd.bosstradamus.de');
+    header('Access-Control-Allow-Credentials: true');
+    if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        header('Access-Control-Allow-Headers: Content-Type');
+        exit;
+    }
+}
 <?php
 
 $host = 'localhost';

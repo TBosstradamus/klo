@@ -6,6 +6,12 @@
 // ACHTUNG: KEIN ZEICHEN, KEIN LEERZEICHEN, KEIN BOM VOR DIESER ZEILE!
 
 session_start();
+header('Access-Control-Allow-Origin: http://localhost:3000');
+header('Access-Control-Allow-Credentials: true');
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    header('Access-Control-Allow-Headers: Content-Type');
+    exit;
+}
 header('Content-Type: application/json');
 ini_set('display_errors', 1);
 error_reporting(E_ALL);

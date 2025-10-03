@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
   let currentMail = null;
 
   async function loadMailbox() {
-  const res = await fetch('api/db.php?module=mailbox&action=list');
+  const res = await fetch('api/db.php?module=mailbox&action=list', { credentials: 'include' });
     const mails = await res.json();
     renderMailboxGrid(mails);
   }
@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
   await fetch('api/db.php?module=mailbox&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(mail)
     });
     bootstrap.Modal.getInstance(document.getElementById('mailboxModal')).hide();
@@ -75,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   async function deleteMail(id) {
     if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=mailbox&action=delete&id=${id}`, { method: 'DELETE' });
+  await fetch(`api/db.php?module=mailbox&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
       loadMailbox();
     }
   }
@@ -89,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Hilfsfunktion zum Befüllen von Officer-Dropdowns
 async function fillOfficerDropdown(selectId, selectedId = '') {
-  const res = await fetch('api/db.php?module=officers&action=list');
+  const res = await fetch('api/db.php?module=officers&action=list', { credentials: 'include' });
   const officers = await res.json();
   const select = document.getElementById(selectId);
   select.innerHTML = '<option value="">Bitte wählen</option>' + officers.map(o =>
@@ -98,7 +99,7 @@ async function fillOfficerDropdown(selectId, selectedId = '') {
 }
 
 async function loadChecklists() {
-  const res = await fetch('api/db.php?module=checklists&action=list');
+  const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
   const checklists = await res.json();
   renderChecklistGrid(checklists);
 }
@@ -155,7 +156,7 @@ function renderChecklistGrid(checklists) {
 
 // Detail-Modal für Checkliste
 async function openChecklistDetailModal(id) {
-  const res = await fetch('api/db.php?module=checklists&action=list');
+  const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
   const checklists = await res.json();
   const checklist = checklists.find(c => c.id === id);
   let itemsArr = [];
@@ -190,7 +191,7 @@ async function openChecklistDetailModal(id) {
 
 // Abschluss einer Checkliste
 async function completeChecklist(id) {
-  const res = await fetch('api/db.php?module=checklists&action=list');
+  const res = await fetch('api/db.php?module=checklists&action=list', { credentials: 'include' });
   const checklists = await res.json();
   const checklist = checklists.find(c => c.id === id);
   if (!checklist) return;
@@ -276,12 +277,14 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
   await fetch(`api/db.php?module=checklists&action=update&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(checklist)
     });
   } else {
   await fetch('api/db.php?module=checklists&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(checklist)
     });
   }
@@ -291,7 +294,7 @@ document.getElementById('checklistForm').onsubmit = async function(e) {
 
 async function deleteChecklist(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=checklists&action=delete&id=${id}`, { method: 'DELETE' });
+  await fetch(`api/db.php?module=checklists&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadChecklists();
   }
 }
@@ -299,7 +302,7 @@ async function deleteChecklist(id) {
 let currentITLog = null;
 
 async function loadITLogs() {
-  const res = await fetch('api/db.php?module=itlogs&action=list');
+  const res = await fetch('api/db.php?module=itlogs&action=list', { credentials: 'include' });
   const itlogs = await res.json();
   renderITLogGrid(itlogs);
 }
@@ -368,12 +371,14 @@ document.getElementById('itlogForm').onsubmit = async function(e) {
   await fetch(`api/db.php?module=itlogs&action=update&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(log)
     });
   } else {
   await fetch('api/db.php?module=itlogs&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(log)
     });
   }
@@ -383,7 +388,7 @@ document.getElementById('itlogForm').onsubmit = async function(e) {
 
 async function deleteITLog(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=itlogs&action=delete&id=${id}`, { method: 'DELETE' });
+  await fetch(`api/db.php?module=itlogs&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadITLogs();
   }
 }
@@ -391,7 +396,7 @@ async function deleteITLog(id) {
 let currentDocument = null;
 
 async function loadDocuments() {
-  const res = await fetch('api/db.php?module=documents&action=list');
+  const res = await fetch('api/db.php?module=documents&action=list', { credentials: 'include' });
   const documents = await res.json();
   renderDocumentGrid(documents);
 }
@@ -422,7 +427,7 @@ function renderDocumentGrid(documents) {
 
 async function openDocumentModal(id) {
   if (id) {
-  const res = await fetch('api/db.php?module=documents&action=list');
+  const res = await fetch('api/db.php?module=documents&action=list', { credentials: 'include' });
     const documents = await res.json();
     currentDocument = documents.find(d => d.id === id);
   } else {
@@ -453,12 +458,14 @@ document.getElementById('documentForm').onsubmit = async function(e) {
   await fetch(`api/db.php?module=documents&action=update&id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(doc)
     });
   } else {
   await fetch('api/db.php?module=documents&action=save', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(doc)
     });
   }
@@ -468,7 +475,7 @@ document.getElementById('documentForm').onsubmit = async function(e) {
 
 async function deleteDocument(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/db.php?module=documents&action=delete&id=${id}`, { method: 'DELETE' });
+  await fetch(`api/db.php?module=documents&action=delete&id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadDocuments();
   }
 }
@@ -476,7 +483,7 @@ async function deleteDocument(id) {
 let currentModule = null;
 
 async function loadModules() {
-  const res = await fetch('api/modules.php');
+  const res = await fetch('api/modules.php', { credentials: 'include' });
   const modules = await res.json();
   renderModuleGrid(modules);
 }
@@ -527,7 +534,7 @@ function completeModule(id) {
 
 async function openModuleModal(id) {
   if (id) {
-  const res = await fetch('api/modules.php');
+  const res = await fetch('api/modules.php', { credentials: 'include' });
     const modules = await res.json();
     currentModule = modules.find(m => m.id === id);
   } else {
@@ -556,12 +563,14 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
   await fetch(`api/modules.php?id=${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(module)
     });
   } else {
   await fetch('api/modules.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(module)
     });
   }
@@ -571,7 +580,7 @@ document.getElementById('moduleForm').onsubmit = async function(e) {
 
 async function deleteModule(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/modules.php?id=${id}`, { method: 'DELETE' });
+  await fetch(`api/modules.php?id=${id}`, { method: 'DELETE', credentials: 'include' });
     loadModules();
   }
 }
@@ -582,7 +591,7 @@ async function deleteModule(id) {
 let currentOfficer = null;
 
 async function loadOfficers() {
-  const res = await fetch('api/officers.php');
+  const res = await fetch('api/officers.php', { credentials: 'include' });
   if (!res.ok) {
     const text = await res.text();
     console.error('Fehler beim Laden der Officers:', res.status, text);
@@ -628,7 +637,7 @@ function renderOfficerSidebar(officers) {
 
 async function openOfficerModal(id) {
   if (id) {
-  const res = await fetch(`api/officers`);
+  const res = await fetch(`api/officers`, { credentials: 'include' });
     const officers = await res.json();
     currentOfficer = officers.find(o => o.id === id);
   } else {
@@ -670,12 +679,14 @@ document.addEventListener('DOMContentLoaded', function() {
         await fetch(`api/officers/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(officer)
         });
       } else {
         await fetch('api/officers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify(officer)
         });
       }
@@ -688,7 +699,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function deleteOfficer(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/officers/${id}`, { method: 'DELETE' });
+  await fetch(`api/officers/${id}`, { method: 'DELETE', credentials: 'include' });
     loadOfficers();
   }
 }
@@ -698,7 +709,7 @@ async function deleteOfficer(id) {
 let currentVehicle = null;
 
 async function loadVehicles() {
-  const res = await fetch('api/vehicles');
+  const res = await fetch('api/vehicles', { credentials: 'include' });
   const vehicles = await res.json();
   renderVehicleGrid(vehicles);
 }
@@ -731,7 +742,7 @@ function renderVehicleGrid(vehicles) {
 
 async function openVehicleModal(id) {
   if (id) {
-  const res = await fetch('api/vehicles');
+  const res = await fetch('api/vehicles', { credentials: 'include' });
     const vehicles = await res.json();
     currentVehicle = vehicles.find(v => v.id === id);
   } else {
@@ -766,12 +777,14 @@ document.getElementById('vehicleForm').onsubmit = async function(e) {
   await fetch(`api/vehicles/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(vehicle)
     });
   } else {
   await fetch('api/vehicles', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(vehicle)
     });
   }
@@ -781,7 +794,7 @@ document.getElementById('vehicleForm').onsubmit = async function(e) {
 
 async function deleteVehicle(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/vehicles/${id}`, { method: 'DELETE' });
+  await fetch(`api/vehicles/${id}`, { method: 'DELETE', credentials: 'include' });
     loadVehicles();
   }
 }
@@ -791,7 +804,7 @@ async function deleteVehicle(id) {
 let currentSanction = null;
 
 async function loadSanctions() {
-  const res = await fetch('api/sanctions');
+  const res = await fetch('api/sanctions', { credentials: 'include' });
   const sanctions = await res.json();
   renderSanctionsTable(sanctions);
 }
@@ -821,7 +834,7 @@ function renderSanctionsTable(sanctions) {
 
 async function openSanctionModal(id) {
   if (id) {
-  const res = await fetch('api/sanctions');
+  const res = await fetch('api/sanctions', { credentials: 'include' });
     const sanctions = await res.json();
     currentSanction = sanctions.find(s => s.id === id);
   } else {
@@ -855,12 +868,14 @@ document.getElementById('sanctionForm').onsubmit = async function(e) {
   await fetch(`api/sanctions/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(sanction)
     });
   } else {
   await fetch('api/sanctions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(sanction)
     });
   }
@@ -870,7 +885,7 @@ document.getElementById('sanctionForm').onsubmit = async function(e) {
 
 async function deleteSanction(id) {
   if (confirm('Wirklich löschen?')) {
-  await fetch(`api/sanctions/${id}`, { method: 'DELETE' });
+  await fetch(`api/sanctions/${id}`, { method: 'DELETE', credentials: 'include' });
     loadSanctions();
   }
 }
@@ -922,7 +937,7 @@ function renderMeinDienst() {
   }
 // Uprank/Derank-Protokollseite
 function renderUprankLog() {
-  fetch('api/itlogs.php')
+  fetch('api/itlogs.php', { credentials: 'include' })
     .then(res => res.json())
     .then(logs => {
       // Nur Beförderungs-/Degradierungs-Logs anzeigen
@@ -1065,6 +1080,7 @@ function openUprankModal() {
     fetch('api/uprank.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ officer_id: currentUser.id, old_rank: currentUser.rank, new_rank })
     })
     .then(res => res.json())
@@ -1090,8 +1106,8 @@ function openUprankModal() {
   let canEditLic = currentUser && Array.isArray(currentUser.departmentRoles) && (currentUser.departmentRoles.includes('Admin') || currentUser.departmentRoles.includes('Personalabteilung'));
   // AJAX: Lizenzen vom Backend holen
   fetch('api/licenses.php')
-    .then(res => res.json())
-    .then(licenses => {
+  .then(res => res.json())
+  .then(licenses => {
       list.innerHTML = '';
       if (!Array.isArray(licenses) || licenses.length === 0) {
         list.innerHTML = '<li class="list-group-item bg-dark text-light">Keine Lizenzen vorhanden.</li>';
@@ -1152,10 +1168,11 @@ function openLicenseModal(license) {
     const method = license.id ? 'PUT' : 'POST';
     const body = license.id ? { id: license.id, name, issued_by, expires_at } : { officer_id: currentUser.id, name, issued_by, expires_at };
     fetch('api/licenses.php', {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    })
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body)
+      })
     .then(res => res.json())
     .then(() => {
       bootstrap.Modal.getInstance(document.getElementById('licenseModal')).hide();
@@ -1173,6 +1190,7 @@ function deleteLicense(license) {
   fetch('api/licenses.php', {
     method: 'DELETE',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ id: license.id })
   })
   .then(res => res.json())
@@ -1213,7 +1231,7 @@ function openTeamModal() {
 let currentUser = null;
 
 function showPublicHome() {
-  fetch('api/homepage.php')
+  fetch('api/homepage.php', { credentials: 'include' })
     .then(res => res.json())
     .then(data => {
       document.getElementById('public-home').innerHTML = data.content || '';
@@ -1274,6 +1292,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const res = await fetch('api/login.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({ username, password })
         });
         if (!res.ok) {

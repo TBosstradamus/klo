@@ -54,6 +54,6 @@ switch ($module) {
         // ...weitere Officer-Aktionen
         break;
     // ...weitere Module
-    default:
-        echo json_encode(['error' => 'Unbekanntes Modul']);
+        default:
+            // KEIN Output hier! Fehlerbehandlung erfolgt im aufrufenden API-Modul.
 }
